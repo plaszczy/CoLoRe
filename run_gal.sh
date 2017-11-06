@@ -1,10 +1,11 @@
 
-NSIM=90
+NSIM=1
 
-dens_type=2
+dens_type=0
 
 TEMPLATE="template_gal.cfg"
-OUTDIR="batch_$dens_type"
+OUTDIR="batch/dens_type2${dens_type}"
+mkdir -p $OUTDIR
 
 #loop
 
