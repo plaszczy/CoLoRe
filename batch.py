@@ -121,6 +121,12 @@ def ana(dens_type=0,ishell=5):
     xlim(0,500)
     ylim(-2e-5,8e-5)
     title(dens[dens_type])
+    
+    zval=(0,0.1,0.2,0.3,0.4,0.5)
+    zmax=zval[ishell]
+    zmin=zval[ishell-1]
+    text(0.4, 0.9,r"$z\in [{},{}]$".format(zmin,zmax), transform=gca().transAxes,fontsize=12)
+
     tight_layout()
 
     show()
@@ -151,6 +157,8 @@ def residues(ishell=5,lmax=500):
         i+=1
         
     plot(clt[l]/100,'k--',label=r"$C_\ell^{true}/100$")
+ 
+    
     legend()
     axhline(0,color='k',lw=0.5)
     xlabel(r"$\ell$")
