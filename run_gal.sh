@@ -4,7 +4,7 @@ NSIM=1
 dens_type=0
 
 TEMPLATE="template_gal.cfg"
-OUTDIR="batch/dens_type2${dens_type}"
+OUTDIR="batch/dens_type${dens_type}"
 mkdir -p $OUTDIR
 
 #loop
@@ -20,5 +20,5 @@ awk -v seed=$RANDOM -v dens=$dens_type '{if (/_SEED_/) {print "seed = "seed}  el
 #renommer
 mv -f tt.cfg $OUTDIR/cat$seed.cfg
 mv -f out_srcs_0.fits $OUTDIR/cat$seed.fits
-rm -f out*
+#rm -f out*
 done

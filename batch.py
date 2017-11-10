@@ -7,30 +7,24 @@ from pylab import *
 
 
 
-
-
-def read_fits(fname,zcut) :
+def read_catalog(fname,zcut,rsd=True) :
     data=(fits.open(fname)[1]).data
     print("reading {}".format(fname))
     
-    ra_arr=data['RA']
-    dec_arr=data['DEC']
-    z0_arr=data['Z_COSMO']
-    rsd_arr=data['DZ_RSD']
-    
-    zrec=z0_arr+rsd_arr
+    ra=data['RA']
+    dec=data['DEC']
+    zrec=data['Z_COSMO']
+    if rsd:
+        zrec+=data['DZ_RSD']
+
+    #cut
     w=np.logical_and(zrec>zcut[0],zrec<zcut[1])
     
-    z0=z0_arr[w]
-    zrec=zrec[w]
-    ra=ra_arr[w]
-    dec=dec_arr[w]
-    
-    return zrec,z0,ra,dec
+    return zrec[w],ra[w],dec[w]
 
 ####
 
-def proj(dens_type=0,ishell=5,nside=256,lmax=500):
+def proj(dens_type=0,ishell=5,nside=256,lmax=500,rsd=True,write=True):
 
     dir=os.path.join("batch","dens_type{}".format(dens_type))
 
@@ -54,7 +48,7 @@ def proj(dens_type=0,ishell=5,nside=256,lmax=500):
     cls=[]
     cpt=1
     for file in files:
-        zrec,z0,ra,dec=read_fits(file,zcut)
+        zrec,ra,dec=read_catalog(file,zcut,rsd)
         Nsamp=len(ra)
         nbar=Nsamp/(4*np.pi)
         print(" {} -> Nsamp={}, SN={}".format(cpt,Nsamp,1/nbar))
@@ -69,20 +63,19 @@ def proj(dens_type=0,ishell=5,nside=256,lmax=500):
         cpt+=1
         
     clm=np.mean(cls,0)
-    
-    dirout=os.path.join(dir,"shell{:d}".format(ishell))
-    os.makedirs(dirout,exist_ok=True)
-    
-    f1=os.path.join(dirout,"clmean.fits")
-    hp.write_cl(f1,clm,overwrite=True)
-    
-    f2=os.path.join(dirout,"covmat.fits")
     covmat=np.cov(np.transpose(cls))
-    hdu=fits.ImageHDU(covmat)
-    hdu.writeto(f2,overwrite=True)
-    
-    print("writing {} and {}".format(f1,f2))
-    
+        
+    if write:
+        dirout=os.path.join(dir,"shell{:d}".format(ishell))
+        os.makedirs(dirout,exist_ok=True)
+        f1=os.path.join(dirout,"clmean.fits")
+        hp.write_cl(f1,clm,overwrite=True)
+        f2=os.path.join(dirout,"covmat.fits")
+        hdu=fits.ImageHDU(covmat)
+        hdu.writeto(f2,overwrite=True)
+        
+        print("writing {} and {}".format(f1,f2))
+        
     return clm,covmat
 
 ####
@@ -135,31 +128,31 @@ def ana(dens_type=0,ishell=5):
     return clrec-clt
 
 
-def residues(ishell=5,lmax=500):
+def residues(ishell=5,dens_types=(3,0,1,2),lmax=500):
 
-    ishell=5
+    densnames=("LogN","1LPT","2LPT","Gaussclip")
+    zval=(0,0.1,0.2,0.3,0.4,0.5)
+    zmax=zval[ishell]
+    zmin=zval[ishell-1]
+
     truth="clR4_shell{:0d}_bordersout.txt".format(ishell)
     
     lt,clt=loadtxt(truth,unpack=True)
     clt[0]=0
 
-
-
-    dens=("LogN","1LPT","2LPT","Gaussclip")
-
-    i=0
-    for dens_type in dens :
+    figure()
+    for i in dens_types :
         f1=os.path.join("batch","dens_type{}".format(i),"shell{}".format(ishell),"clmean.fits")
         clrec=hp.read_cl(f1)
         l=arange(len(clrec))
         res=clrec-clt[l]
-        plot(res,label=dens_type,alpha=0.7)
-        i+=1
+        plot(res,label=densnames[i],alpha=0.8)
         
     plot(clt[l]/100,'k--',label=r"$C_\ell^{true}/100$")
  
     
-    legend()
+    legend(loc='lower right')
+    title(r"$z\in [{},{}]$".format(zmin,zmax))
     axhline(0,color='k',lw=0.5)
     xlabel(r"$\ell$")
     ylabel(r"residue")
