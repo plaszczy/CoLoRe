@@ -111,7 +111,6 @@ def ana(dens_type=0,ishell=5):
     legend()
     xlabel(r"$\ell$")
     ylabel(r"$C_\ell$")
-    xlim(0,500)
     ylim(-2e-5,8e-5)
     title(dens[dens_type])
     
