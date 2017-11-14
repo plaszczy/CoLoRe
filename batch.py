@@ -24,9 +24,9 @@ def read_catalog(fname,zcut,rsd=True) :
 
 ####
 
-def proj(dens_type=0,ishell=5,nside=256,lmax=500,rsd=True,write=True):
+def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
 
-    dir=os.path.join("batch","dens_type{}".format(dens_type))
+    dir=os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(dens_type))
 
     zval=(0,0.1,0.2,0.3,0.4,0.5)
 
@@ -80,12 +80,12 @@ def proj(dens_type=0,ishell=5,nside=256,lmax=500,rsd=True,write=True):
 
 ####
 
-def ana(dens_type=0,ishell=5):
+def ana(dens_type=0,ishell=5,ngrid=512):
 
 
     dens=("LogN","1LPT","2LPT","Gaussclip")
 
-    dir="batch_{}".format(dens_type)
+    dir=os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(dens_type))
 
     #truth="clR4_shell{:0d}_flat.txt".format(ishell)
     truth="clR4_shell{:0d}_bordersout.txt".format(ishell)
@@ -93,7 +93,7 @@ def ana(dens_type=0,ishell=5):
 
     print("Analyzing batch={} vs {}".format(dir,truth))
 
-    f1=os.path.join("batch","dens_type{}".format(dens_type),"shell{}".format(ishell),"clmean.fits")
+    f1=os.path.join(dir,"shell{}".format(ishell),"clmean.fits")
     clrec=hp.read_cl(f1)
     l=arange(len(clrec))
 
@@ -127,7 +127,7 @@ def ana(dens_type=0,ishell=5):
     return clrec-clt
 
 
-def residues(ishell=5,dens_types=(3,0,1,2),lmax=500):
+def residues(ishell=5,ngrid=256,dens_types=(3,0,1,2),lmax=500):
 
     densnames=("LogN","1LPT","2LPT","Gaussclip")
     zval=(0,0.1,0.2,0.3,0.4,0.5)
@@ -141,7 +141,7 @@ def residues(ishell=5,dens_types=(3,0,1,2),lmax=500):
 
     figure()
     for i in dens_types :
-        f1=os.path.join("batch","dens_type{}".format(i),"shell{}".format(ishell),"clmean.fits")
+        f1=os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(i),"shell{}".format(ishell),"clmean.fits")
         clrec=hp.read_cl(f1)
         l=arange(len(clrec))
         res=clrec-clt[l]

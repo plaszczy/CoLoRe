@@ -1,5 +1,5 @@
 
-NSIM=1
+NSIM=98
 
 dens_type=0
 ngrid=400
