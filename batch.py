@@ -23,11 +23,14 @@ def read_catalog(fname,zcut,rsd=True) :
     return zrec[w],ra[w],dec[w]
 
 ####
+def get_path(dens_type=0,ishell=5,ngrid=512):
+    return os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(dens_type))
+
+####
 
 def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
 
-    dir=os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(dens_type))
-
+    dir=get_path(dens_type,ishell,ngrid)
     zval=(0,0.1,0.2,0.3,0.4,0.5)
 
     zmax=zval[ishell]
@@ -78,14 +81,12 @@ def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
         
     return clm,covmat
 
-####
 
 def ana(dens_type=0,ishell=5,ngrid=512):
 
-
     dens=("LogN","1LPT","2LPT","Gaussclip")
 
-    dir=os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(dens_type))
+    dir=get_path(dens_type,ishell,ngrid)
 
     #truth="clR4_shell{:0d}_flat.txt".format(ishell)
     truth="clR4_shell{:0d}_bordersout.txt".format(ishell)
