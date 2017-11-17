@@ -39,7 +39,7 @@ def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
     zmin=zval[ishell-1]
     
     
-    files=glob.glob(os.path.join(dir,"cat*.fits"))
+    files=glob.glob(os.path.join(dir,"..","cat*.fits"))
     print("Analyzing: {}".format(dir))
     print("shell #{}: z=[{},{}] ".format(ishell,zmin,zmax))
     
@@ -71,7 +71,7 @@ def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
     covmat=np.cov(np.transpose(cls))
         
     if write:
-        dirout=os.path.join(dir,"shell{:d}".format(ishell))
+        dirout=os.path.join(dir,"..","shell{:d}".format(ishell))
         os.makedirs(dirout,exist_ok=True)
         f1=os.path.join(dirout,"clmean.fits")
         hp.write_cl(f1,clm,overwrite=True)
