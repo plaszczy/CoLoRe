@@ -2,6 +2,8 @@ import numpy as np
 from astropy.io import fits
 import healpy as hp
 import sys,os,glob
+from tools import *
+
 
 from pylab import *
 
@@ -24,7 +26,7 @@ def read_catalog(fname,zcut,rsd=True) :
 
 ####
 def get_path(dens_type=0,ishell=5,ngrid=512):
-    return os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(dens_type))
+    return os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(dens_type),"shell{}".format(ishell))
 
 ####
 
@@ -88,18 +90,16 @@ def ana(dens_type=0,ishell=5,ngrid=512):
 
     dir=get_path(dens_type,ishell,ngrid)
 
-    #truth="clR4_shell{:0d}_flat.txt".format(ishell)
-    truth="clR4_shell{:0d}_bordersout.txt".format(ishell)
-    #truth="clR4_shell{:0d}_bordersin.txt".format(ishell)
-
-    print("Analyzing batch={} vs {}".format(dir,truth))
-
     f1=os.path.join(dir,"shell{}".format(ishell),"clmean.fits")
     clrec=hp.read_cl(f1)
     l=arange(len(clrec))
 
-    lt,clt=loadtxt(truth,unpack=True)
-    #clt=read_cl("cl_R4.fits")
+    #truth="clR4_shell{:0d}_bordersout.txt".format(ishell)
+    #lt,clt=loadtxt(truth,unpack=True)
+    t=mrdfits("colore.fits",1)
+    key='cl{}{}'.format(ishell-2,ishell-2)
+    lt=t.l
+    clt=t[key]
     clt=clt[l]
     clt[0]=0
 
