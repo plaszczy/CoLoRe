@@ -29,6 +29,18 @@ def get_path(dens_type=0,ishell=5,ngrid=512):
     return os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(dens_type),"shell{}".format(ishell))
 
 ####
+def get_truth(dens_type=0,ishell=5,ngrid=512):
+    t=genfromtxt("clR4_bordersout.txt",names=True)
+    key=t.dtype.names[ishell-1]
+
+    #t=mrdfits("colore.fits",1)
+    #key='cl{}{}'.format(ishell-2,ishell-2)
+
+    lt=t['ell']
+    clt=t[key]
+    clt[0]=0
+    return lt,clt
+    
 
 def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
 
@@ -90,18 +102,13 @@ def ana(dens_type=0,ishell=5,ngrid=512):
 
     dir=get_path(dens_type,ishell,ngrid)
 
-    f1=os.path.join(dir,"shell{}".format(ishell),"clmean.fits")
+    f1=os.path.join(dir,"clmean.fits")
     clrec=hp.read_cl(f1)
     l=arange(len(clrec))
 
-    #truth="clR4_shell{:0d}_bordersout.txt".format(ishell)
-    #lt,clt=loadtxt(truth,unpack=True)
-    t=mrdfits("colore.fits",1)
-    key='cl{}{}'.format(ishell-2,ishell-2)
-    lt=t.l
-    clt=t[key]
+    lt,clt=get_truth(dens_type,ishell,ngrid)
+    #resize
     clt=clt[l]
-    clt[0]=0
 
 
     figure()
@@ -135,10 +142,7 @@ def residues(ishell=5,ngrid=256,dens_types=(3,0,1,2),lmax=500):
     zmax=zval[ishell]
     zmin=zval[ishell-1]
 
-    truth="clR4_shell{:0d}_bordersout.txt".format(ishell)
-    
-    lt,clt=loadtxt(truth,unpack=True)
-    clt[0]=0
+    lt,clt=get_truth(dens_type,ishell,ngrid)
 
     figure()
     for i in dens_types :
