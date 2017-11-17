@@ -30,11 +30,14 @@ def get_path(dens_type=0,ishell=5,ngrid=512):
 
 ####
 def get_truth(dens_type=0,ishell=5,ngrid=512):
-    t=genfromtxt("clR4_bordersout.txt",names=True)
-    key=t.dtype.names[ishell-1]
 
-    #t=mrdfits("colore.fits",1)
-    #key='cl{}{}'.format(ishell-2,ishell-2)
+    #angpow
+    #t=genfromtxt("clR4_bordersout.txt",names=True)
+    #key=t.dtype.names[ishell-1]
+
+    #camgal
+    t=mrdfits("colore_tophat.fits",1)
+    key='cl{}{}'.format(ishell-2,ishell-2)
 
     lt=t['ell']
     clt=t[key]
