@@ -35,8 +35,8 @@ void write_predictions(ParamCoLoRe *par)
   const double kmax=50;;
   const double kminout=kmin;
   const double kmaxout=kmax;
-  const double rminout=0.5;
-  const double rmaxout=300.;
+  const double rminout=0.;
+  const double rmaxout=1.e5;
   double *ka=my_malloc(Nk*sizeof(double));
   double *pk=my_malloc(Nk*sizeof(double));
   double *pklin=my_malloc(Nk*sizeof(double));
@@ -47,6 +47,7 @@ void write_predictions(ParamCoLoRe *par)
   FILE *fpk, *fxi, *fg;
   char fnamepk[256], fnamexi[256], gbiasfn[256];
   double rsm2=par->r2_smooth+pow(0.45*par->l_box/par->n_grid,2);
+  printf("r2_smooth=%f,rsm2=%f\n",par->r2_smooth,rsm2);
   sprintf(gbiasfn,"%s_gbias.txt",par->prefixOut);
   fg=fopen(gbiasfn,"w");
   fprintf (fg,"#1-z 2-r(z) 3-g(z) ");

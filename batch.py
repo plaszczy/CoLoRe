@@ -31,13 +31,11 @@ def get_path(dens_type=0,ishell=5,ngrid=512):
 ####
 def get_truth(dens_type=0,ishell=5,ngrid=512):
 
-    #angpow
-    #t=genfromtxt("clR4_bordersout.txt",names=True)
-    #key=t.dtype.names[ishell-1]
-
     #camgal
-    t=mrdfits("colore_tophat.fits",1)
+    name="colore_tophat_dens{:d}_ngrid{:d}.fits".format(dens_type,ngrid)
+    t=mrdfits(name,1)
     key='cl{}{}'.format(ishell-2,ishell-2)
+    print("model={} :key={}",name,key)
 
     lt=t['ell']
     clt=t[key]
@@ -52,7 +50,6 @@ def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
 
     zmax=zval[ishell]
     zmin=zval[ishell-1]
-    
     
     files=glob.glob(os.path.join(dir,"..","cat*.fits"))
     print("Analyzing: {}".format(dir))
@@ -88,8 +85,14 @@ def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
     if write:
         dirout=os.path.join(dir,"..","shell{:d}".format(ishell))
         os.makedirs(dirout,exist_ok=True)
-        f1=os.path.join(dirout,"clmean.fits")
+        clname="clmean.fits"
+        if not rsd :
+            clname="clmean_norsd.fits"
+        f1=os.path.join(dirout,clname)
         hp.write_cl(f1,clm,overwrite=True)
+        covname="covmat.fits"
+        if not rsd :
+            clname="covmat_norsd.fits"
         f2=os.path.join(dirout,"covmat.fits")
         hdu=fits.ImageHDU(covmat)
         hdu.writeto(f2,overwrite=True)
@@ -111,10 +114,11 @@ def ana(dens_type=0,ishell=5,ngrid=512):
 
     lt,clt=get_truth(dens_type,ishell,ngrid)
     #resize
-    clt=clt[l]
+    lmin=min(len(l),len(lt))
+    clt=clt[0:lmin]
+    clrec=clrec[0:lmin]
 
-
-    figure()
+    #figure()
     plot(clt,'r',label=r"$C_\ell^{th}$")
     plot(clrec,'k',label=r"$<C_\ell^i>-SN$")
     plot(clrec-clt,label='residue')
@@ -122,8 +126,8 @@ def ana(dens_type=0,ishell=5,ngrid=512):
     legend()
     xlabel(r"$\ell$")
     ylabel(r"$C_\ell$")
-    ylim(-2e-5,8e-5)
-    title(dens[dens_type])
+    #ylim(-2e-5,8e-5)
+    title(dens[dens_type]+"  (ngrid={})".format(ngrid))
     
     zval=(0,0.1,0.2,0.3,0.4,0.5)
     zmax=zval[ishell]
@@ -133,8 +137,6 @@ def ana(dens_type=0,ishell=5,ngrid=512):
     tight_layout()
 
     show()
-
-
     return clrec-clt
 
 
