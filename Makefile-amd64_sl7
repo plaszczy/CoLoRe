@@ -45,11 +45,11 @@ HDF5_LIB =
 CONF_INC = -I/sps/lsst/Library/libconfig-1.5/include
 CONF_LIB = -L/sps/lsst/Library/libconfig-1.5/lib
 #healpix
-HPIX_INC = -I/sps/lsst/dev/plaszczy/lib/Healpix_3.31/amd64_sl7/include
-HPIX_LIB = -L/sps/lsst/dev/plaszczy/lib/Healpix_3.31/amd64_sl7/lib
+HPIX_INC = -I/sps/lsst/users/plaszczy/lib/Healpix_3.31/amd64_sl7/include
+HPIX_LIB = -L/sps/lsst/users/plaszczy/lib/Healpix_3.31/amd64_sl7/lib
 #libsharp
-SHT_INC = -I/sps/lsst/dev/plaszczy/lib/Healpix_3.31/src/cxx/amd64_sl7/linux_icc/include
-SHT_LIB = -L/sps/lsst/dev/plaszczy/lib/Healpix_3.31/src/cxx/amd64_sl7/linux_icc/lib
+SHT_INC = -I/sps/lsst/users/plaszczy/lib/Healpix_3.31/src/cxx/amd64_sl7/linux_icc/include
+SHT_LIB = -L/sps/lsst/users/plaszczy/lib/Healpix_3.31/src/cxx/amd64_sl7/linux_icc/lib
 #
 ########## End of user-definable ##########
 
