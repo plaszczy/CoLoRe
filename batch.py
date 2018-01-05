@@ -104,7 +104,7 @@ def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
 
 def ana(dens_type=0,ishell=5,ngrid=512):
 
-    dens=("LogN","1LPT","2LPT","Gaussclip")
+    dens=("LogN","1LPT","2LPT","clipped")
 
     dir=get_path(dens_type,ishell,ngrid)
 
