@@ -32,10 +32,10 @@ def get_path(dens_type=0,ishell=5,ngrid=512):
 def get_truth(dens_type=0,ishell=5,ngrid=512):
 
     #camgal
-    name="colore_tophat_dens{:d}_ngrid{:d}.fits".format(dens_type,ngrid)
+    name="model/tophat_dens{:d}_ngrid{:d}.fits".format(dens_type,ngrid)
     t=mrdfits(name,1)
     key='cl{}{}'.format(ishell-2,ishell-2)
-    print("model={} :key={}",name,key)
+    print("model={} :key={}".format(name,key))
 
     lt=t['ell']
     clt=t[key]
