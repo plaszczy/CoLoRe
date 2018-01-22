@@ -25,9 +25,9 @@
 
 void write_predictions(ParamCoLoRe *par)
 {
-  if ((!par->do_sources) && (!par->do_imap)) return;
+  if ((!par->do_srcs) && (!par->do_imap)) return;
   if (NodeThis!=0) return;
-  print_info("*** Writing predictions (ASCII) \n");
+  print_info("*** Writing predictions\n");
   // first generate k array, sufficiently finely spaced
   // note that we need to sufficiently pad on both ends
   const int Nk=10000;
@@ -35,8 +35,8 @@ void write_predictions(ParamCoLoRe *par)
   const double kmax=50;;
   const double kminout=kmin;
   const double kmaxout=kmax;
-  const double rminout=0.;
-  const double rmaxout=1.e5;
+  const double rminout=0.5;
+  const double rmaxout=300.;
   double *ka=my_malloc(Nk*sizeof(double));
   double *pk=my_malloc(Nk*sizeof(double));
   double *pklin=my_malloc(Nk*sizeof(double));
@@ -46,8 +46,7 @@ void write_predictions(ParamCoLoRe *par)
   for (int i=0; i<Nk; i++) ka[i]=kmin*pow((kmax/kmin),i*1.0/(Nk-1));
   FILE *fpk, *fxi, *fg;
   char fnamepk[256], fnamexi[256], gbiasfn[256];
-  double rsm2=par->r2_smooth+pow(0.45*par->l_box/par->n_grid,2);
-  printf("r2_smooth=%f,rsm2=%f\n",par->r2_smooth,rsm2);
+  double rsm2=par->r2_smooth+pow(par->l_box/par->n_grid,2)/12.;
   sprintf(gbiasfn,"%s_gbias.txt",par->prefixOut);
   fg=fopen(gbiasfn,"w");
   fprintf (fg,"#1-z 2-r(z) 3-g(z) ");
@@ -65,20 +64,24 @@ void write_predictions(ParamCoLoRe *par)
     for (int i=0; i<Nk; i++) pklin[i]=pk_linear0(par,log10(ka[i]))*g*g;
     pk2xi(Nk,ka,pklin,ra,xilin);
     // inner loop is over populations, ipop=-1 is the unbiased version
+#ifdef _DEBUG
     print_info ("Writing predictions of redshift %g:\n",z);
+#endif //_DEBUG
 
-    if(par->do_sources) {
+    if(par->do_srcs) {
       for (int ipop=0; ipop<par->n_srcs; ipop++) {
 	double bias=get_bg(par,r,BG_BZ_SRCS,ipop);
 	fprintf(fg,"%g ",bias);
+#ifdef _DEBUG
 	print_info ("       Population %i, bias %g. \n",ipop,bias);
+#endif //_DEBUG
 	for (int i=0; i<Nk; i++) pk[i]=pklin[i]*bias*bias*exp(-rsm2*ka[i]*ka[i]);
 	pk2xi(Nk,ka,pk,ra,xi);
 	for (int i=0; i<Nk; i++) xi[i]=exp(xi[i])-1;
 	xi2pk(Nk,ra,xi,ka,pk);
 	// now open the files
-	sprintf(fnamepk,"%s_pk_srcs_pop%i_z%g.txt",par->prefixOut,ipop,z);
-	sprintf(fnamexi,"%s_xi_srcs_pop%i_z%g.txt",par->prefixOut,ipop,z);
+	sprintf(fnamepk,"%s_pk_srcs_pop%i_z%.3lf.txt",par->prefixOut,ipop,z);
+	sprintf(fnamexi,"%s_xi_srcs_pop%i_z%.3lf.txt",par->prefixOut,ipop,z);
 	fpk=fopen(fnamepk,"w");
 	fprintf (fpk, "# k[h/Mpc] P_tt P_tl P_ll\n");
 	fxi=fopen(fnamexi,"w");
@@ -97,14 +100,16 @@ void write_predictions(ParamCoLoRe *par)
       for (int ipop=0; ipop<par->n_imap; ipop++) {
 	double bias=get_bg(par,r,BG_BZ_IMAP,ipop);
 	fprintf(fg,"%g ",bias);
+#ifdef _DEBUG
 	print_info ("       Population %i, bias %g. \n",ipop,bias);
+#endif //_DEBUG
 	for (int i=0; i<Nk; i++) pk[i]=pklin[i]*bias*bias*exp(-rsm2*ka[i]*ka[i]);
 	pk2xi(Nk,ka,pk,ra,xi);
 	for (int i=0; i<Nk; i++) xi[i]=exp(xi[i])-1;
 	xi2pk(Nk,ra,xi,ka,pk);
 	// now open the files
-	sprintf(fnamepk,"%s_pk_imap_pop%i_z%g.txt",par->prefixOut,ipop,z);
-	sprintf(fnamexi,"%s_xi_imap_pop%i_z%g.txt",par->prefixOut,ipop,z);
+	sprintf(fnamepk,"%s_pk_imap_pop%i_z%.3lf.txt",par->prefixOut,ipop,z);
+	sprintf(fnamexi,"%s_xi_imap_pop%i_z%.3lf.txt",par->prefixOut,ipop,z);
 	fpk=fopen(fnamepk,"w");
 	fprintf (fpk, "# k[h/Mpc] P_tt P_tl P_ll\n");
 	fxi=fopen(fnamexi,"w");
