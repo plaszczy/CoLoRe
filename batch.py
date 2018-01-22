@@ -140,7 +140,7 @@ def ana(dens_type=0,ishell=5,ngrid=512):
     return clrec-clt
 
 
-def residues(ishell=5,ngrid=256,dens_types=(3,0,1,2),lmax=500):
+def residues(ishell=5,ngrid=512,dens_types=(3,0,1,2),lmax=500):
 
     densnames=("LogN","1LPT","2LPT","Gaussclip")
     zval=(0,0.1,0.2,0.3,0.4,0.5)
