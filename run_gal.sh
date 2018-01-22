@@ -1,7 +1,7 @@
 
 NSIM=100
 
-dens_type=0
+dens_type=3
 ngrid=256
 
 TEMPLATE="template_gal.cfg"
