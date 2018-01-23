@@ -2,7 +2,7 @@
 NSIM=100
 
 dens_type=0
-ngrid=256
+ngrid=512
 
 TEMPLATE="template_gal.cfg"
 OUTDIR="batch/ngrid$ngrid/dens_type${dens_type}"
