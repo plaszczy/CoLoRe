@@ -22,7 +22,6 @@ for i in range(1,5):
     resfactor(l,clt,cl)
     zmax=zval[ishell]
     zmin=zval[ishell-1]
-    #text(0.4, 0.9,r"$z\in [{},{}]$".format(zmin,zmax), transform=gca().transAxes,fontsize=12)
     title(r"$z\in [{},{}]$".format(zmin,zmax))
     ax0()
     xlabel(r"$\ell$")
