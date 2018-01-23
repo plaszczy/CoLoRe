@@ -2,7 +2,7 @@ import numpy as np
 from astropy.io import fits
 import healpy as hp
 import sys,os,glob
-from tools import *
+#from tools import *
 
 
 from pylab import *

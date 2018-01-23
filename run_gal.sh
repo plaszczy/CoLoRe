@@ -20,6 +20,6 @@ awk -v seed=$RANDOM -v dens=$dens_type -v ngrid=$ngrid '{if (/_SEED_/) {print "s
 
 #renommer
 cp tt.cfg $OUTDIR/cat$seed.cfg
-mv -f out_srcs_0.fits $OUTDIR/cat$seed.fits
+mv -f out_srcs_s1_0.fits $OUTDIR/cat$seed.fits
 rm -f out*
 done
