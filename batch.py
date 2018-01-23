@@ -29,10 +29,24 @@ def get_path(dens_type=0,ishell=5,ngrid=512):
     return os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(dens_type),"shell{}".format(ishell))
 
 ####
-def get_truth(dens_type=0,ishell=5,ngrid=512):
 
+def get(dens_type=0,ishell=5,ngrid=512,rsd=True) :
+    dirin=get_path(dens_type,ishell,ngrid)
+    if rsd:
+        f1=os.path.join(dirin,"clmean.fits")
+    else:
+        f1=os.path.join(dirin,"clmean_norsd.fits")
+    assert os.path.exists(f1),"file does not exist:"+f1
+    return hp.read_cl(f1)
+
+
+def model(dens_type=0,ishell=5,ngrid=512,rsd=True):
     #camgal
-    name="model/tophat_dens{:d}_ngrid{:d}.fits".format(dens_type,ngrid)
+    name="model/tophat_dens{:d}_ngrid{:d}".format(dens_type,ngrid)
+    if not rsd:
+        name+="_norsd"
+    name+=".fits"
+    assert os.path.exists(name),"file does not exist: "+name
     t=mrdfits(name,1)
     key='cl{}{}'.format(ishell-2,ishell-2)
     print("model={} :key={}".format(name,key))
@@ -113,7 +127,7 @@ def ana(dens_type=0,ishell=5,ngrid=512):
     clrec=hp.read_cl(f1)
     l=arange(len(clrec))
 
-    lt,clt=get_truth(dens_type,ishell,ngrid)
+    lt,clt=model(dens_type,ishell,ngrid)
     #resize
     lmin=min(len(l),len(lt))
     clt=clt[0:lmin]
@@ -148,7 +162,7 @@ def residues(ishell=5,ngrid=512,dens_types=(3,0,1,2),lmax=500):
     zmax=zval[ishell]
     zmin=zval[ishell-1]
 
-    lt,clt=get_truth(dens_type,ishell,ngrid)
+    lt,clt=model(dens_type,ishell,ngrid)
 
     figure()
     for i in dens_types :
