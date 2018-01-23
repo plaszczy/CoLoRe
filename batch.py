@@ -2,7 +2,7 @@ import numpy as np
 from astropy.io import fits
 import healpy as hp
 import sys,os,glob
-#from tools import *
+from tools import *
 
 
 from pylab import *
@@ -45,14 +45,15 @@ def get_truth(dens_type=0,ishell=5,ngrid=512):
 
 def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
 
-    dir=get_path(dens_type,ishell,ngrid)
+    dirin=get_path(dens_type,ishell,ngrid)
+    os.makedirs(dirin,exist_ok=True)
     zval=(0,0.1,0.2,0.3,0.4,0.5)
 
     zmax=zval[ishell]
     zmin=zval[ishell-1]
     
-    files=glob.glob(os.path.join(dir,"..","cat*.fits"))
-    print("Analyzing: {}".format(dir))
+    files=glob.glob(os.path.join(dirin,"..","cat*.fits"))
+    print("Analyzing: {}".format(dirin))
     print("shell #{}: z=[{},{}] ".format(ishell,zmin,zmax))
     
     print("there are {} files".format(len(files)))
@@ -83,7 +84,7 @@ def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
     covmat=np.cov(np.transpose(cls))
         
     if write:
-        dirout=os.path.join(dir,"..","shell{:d}".format(ishell))
+        dirout=os.path.join(dirin,"..","shell{:d}".format(ishell))
         os.makedirs(dirout,exist_ok=True)
         clname="clmean.fits"
         if not rsd :
