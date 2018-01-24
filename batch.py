@@ -7,6 +7,22 @@ from tools import *
 
 from pylab import *
 
+class Catalog:
+    def __init__(self,fname):
+        data=(fits.open(fname)[1]).data
+        print("reading {}".format(fname))
+        self.ra=data['RA']
+        self.dec=data['DEC']
+        self.z0=data['Z_COSMO']
+        self.zrec=self.z0+data['DZ_RSD']
+
+    def get(zcut,rsd=True):
+        if rsd:
+            w=np.logical_and(self.zrec>zcut[0],self.zrec<zcut[1])
+            return self.zrec[w],self.ra[w],self.dec[w]
+        else:
+            w=np.logical_and(self.z0>zcut[0],self.z0<zcut[1])
+            return self.z0[w],ra[w],dec[w]
 
 
 def read_catalog(fname,zcut,rsd=True) :
@@ -80,7 +96,9 @@ def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
     cls=[]
     cpt=1
     for file in files:
-        zrec,ra,dec=read_catalog(file,zcut,rsd)
+        #zrec,ra,dec=read_catalog(file,zcut,rsd)
+        catalog=Catalog(file)
+        zrec,ra,dec=catalog.get(zcut,rsd)
         Nsamp=len(ra)
         nbar=Nsamp/(4*np.pi)
         print(" {} -> Nsamp={}, SN={}".format(cpt,Nsamp,1/nbar))
