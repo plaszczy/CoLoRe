@@ -10,8 +10,12 @@ Rsm=4/h
 Lbox=4234.
 
 l=Lbox/ngrid
-print("Ngrid={} cell size l={}".format(ngrid,l))
 
-R1=sqrt(Rsm**2+(l/sqrt(12))**2)
+
+ladd=(l/sqrt(12))
+
+print("Ngrid={}: cell size l={:5.2f} -> adding {:5.2f} Mpc".format(ngrid,l,ladd))
+
+R1=sqrt(Rsm**2+ladd**2)
 
 print("Rin={:5.2f} -> R={:5.2f}".format(Rsm,R1))
