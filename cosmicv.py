@@ -11,6 +11,8 @@ shell=(2,3,4,5)
 ngrid=512
 newfig=True
 
+Nsamp=2.e6
+nbar=Nsamp/(4*np.pi)
 
 zval=(0,0.1,0.2,0.3,0.4,0.5)
 
@@ -26,7 +28,7 @@ for i in range(1,5):
     l,clt=b.model(dens_type=dens,ngrid=ngrid,rsd=rsd,ishell=ishell)
     cl=b.get(dens_type=dens,ngrid=ngrid,rsd=rsd,ishell=ishell)
     res=cl-clt
-    var=2*clt**2/(2*l+1)
+    var=2*(clt+1/nbar)**2/(2*l+1)
     plot(res/sqrt(var))
     xlim(1,200)
     ylim(-1,1)

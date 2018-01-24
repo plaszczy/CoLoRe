@@ -4,7 +4,6 @@ import healpy as hp
 import sys,os,glob
 from tools import *
 
-
 from pylab import *
 
 class Catalog:
@@ -68,6 +67,51 @@ def model(dens_type=0,ishell=5,ngrid=512,rsd=True):
     clt[0]=0
     return lt,clt
     
+
+def proj_all(dens_type=0,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
+
+    dirin=os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(dens_type))
+    files=glob.glob(os.path.join(dirin,"cat*.fits"))
+    ncat=len(files)
+    print("there are {} files".format(len(files)))
+    zval=(0,0.1,0.2,0.3,0.4,0.5)
+
+    cls=zeros((4,lmax+1))
+    for file in files:
+        print("*reading "+file)
+        cat=Catalog(file,rsd)
+        for i in range(0,4):
+            ishell=i+2
+            print(" ->shell={}".format(ishell))
+            zmax=zval[ishell]
+            zmin=zval[ishell-1]
+            zrec,ra,dec=catalog.get([zmin,zmax])
+            Nsamp=len(ra)
+            nbar=Nsamp/(4*np.pi)
+            mp=np.bincount(hp.ang2pix(nside,np.radians(90-dec),np.radians(ra)),minlength=npix)
+            Nmean=mp.mean()
+            map=mp.astype(float)/Nmean-1.
+            #anafast
+            cl=hp.anafast(map,lmax=lmax,iter=0,pol=False,use_weights=True,datapath=os.environ['HEALPIXDATA'])
+            #remove SN
+            cl-=1./nbar
+            cls[i]+=cls
+        #normalize
+        for i in range(0,4):
+            cls[i]/=ncat
+
+
+        if write:
+            for i in range(0,4):
+                ishell=i+2
+                dirout=os.path.join(dirin,"shell{:d}".format(ishell))
+                os.makedirs(dirout,exist_ok=True)
+                clname="clmean.fits"
+                if not rsd :
+                    clname="clmean_norsd.fits"
+                f1=os.path.join(dirout,clname)
+                hp.write_cl(f1,cls[i],overwrite=True)
+
 
 def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
 
