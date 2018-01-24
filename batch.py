@@ -131,17 +131,14 @@ def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
     return clm,covmat
 
 
-def ana(dens_type=0,ishell=5,ngrid=512):
+def ana(dens_type=0,ishell=5,ngrid=512,rsd=True):
 
     dens=("LogN","1LPT","2LPT","clipped")
 
-    dir=get_path(dens_type,ishell,ngrid)
-
-    f1=os.path.join(dir,"clmean.fits")
-    clrec=hp.read_cl(f1)
+    clrec=get(dens_type,ishell,ngrid,rsd)
     l=arange(len(clrec))
+    lt,clt=model(dens_type,ishell,ngrid,rsd)
 
-    lt,clt=model(dens_type,ishell,ngrid)
     #resize
     lmin=min(len(l),len(lt))
     clt=clt[0:lmin]
