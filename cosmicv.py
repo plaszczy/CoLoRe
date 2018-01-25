@@ -11,7 +11,10 @@ shell=(2,3,4,5)
 ngrid=512
 newfig=True
 
-Nsamp=2.e6
+
+Nz=5000
+Nsamp=41253*Nz*0.1
+print("Nz={} mean Ngal={}".format(Nz,Nsamp))
 nbar=Nsamp/(4*np.pi)
 
 zval=(0,0.1,0.2,0.3,0.4,0.5)
@@ -30,7 +33,8 @@ for i in range(1,5):
     res=cl-clt
     var=2*(clt+1/nbar)**2/(2*l+1)
     plot(res/sqrt(var))
-    xlim(1,200)
+    plot(l,clt/max(clt),'--k')
+    xlim(1,250)
     ylim(-1,1)
     zmax=zval[ishell]
     zmin=zval[ishell-1]

@@ -48,6 +48,7 @@ def get(dens_type=0,ishell=5,ngrid=512,rsd=True) :
     else:
         f1=os.path.join(dirin,"clmean_norsd.fits")
     assert os.path.exists(f1),"file does not exist:"+f1
+    print("reading: "+f1)
     return hp.read_cl(f1)
 
 
@@ -70,22 +71,22 @@ def model(dens_type=0,ishell=5,ngrid=512,rsd=True):
 
 def proj_all(dens_type=0,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
 
+
+    npix=hp.nside2npix(nside)
     dirin=os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(dens_type))
     files=glob.glob(os.path.join(dirin,"cat*.fits"))
     ncat=len(files)
-    print("there are {} files".format(len(files)))
+    print("{} files in {}".format(len(files),dirin))
     zval=(0,0.1,0.2,0.3,0.4,0.5)
 
     cls=zeros((4,lmax+1))
     for file in files:
-        print("*reading "+file)
         cat=Catalog(file,rsd)
         for i in range(0,4):
             ishell=i+2
-            print(" ->shell={}".format(ishell))
             zmax=zval[ishell]
             zmin=zval[ishell-1]
-            zrec,ra,dec=catalog.get([zmin,zmax])
+            zrec,ra,dec=cat.get([zmin,zmax])
             Nsamp=len(ra)
             nbar=Nsamp/(4*np.pi)
             mp=np.bincount(hp.ang2pix(nside,np.radians(90-dec),np.radians(ra)),minlength=npix)
@@ -93,24 +94,29 @@ def proj_all(dens_type=0,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
             map=mp.astype(float)/Nmean-1.
             #anafast
             cl=hp.anafast(map,lmax=lmax,iter=0,pol=False,use_weights=True,datapath=os.environ['HEALPIXDATA'])
+            l=arange(len(cl))
+            s2=sum((2*l+1)*cl)/(4*pi)
+            print("\t -> shell={}: z in [{},{}]  Nsamp={} sigma={:5.2} shot noise={:5.2}".format(ishell,zmin,zmax,Nsamp,sqrt(s2),1/nbar))
             #remove SN
             cl-=1./nbar
-            cls[i]+=cls
-        #normalize
+            cls[i,:]+=cl
+    #normalize
+    for i in range(0,4):
+        cls[i,]/=ncat
+
+    if write:
         for i in range(0,4):
-            cls[i]/=ncat
-
-
-        if write:
-            for i in range(0,4):
-                ishell=i+2
-                dirout=os.path.join(dirin,"shell{:d}".format(ishell))
-                os.makedirs(dirout,exist_ok=True)
-                clname="clmean.fits"
-                if not rsd :
-                    clname="clmean_norsd.fits"
+            ishell=i+2
+            dirout=os.path.join(dirin,"shell{:d}".format(ishell))
+            os.makedirs(dirout,exist_ok=True)
+            clname="clmean.fits"
+            if not rsd :
+                clname="clmean_norsd.fits"
                 f1=os.path.join(dirout,clname)
-                hp.write_cl(f1,cls[i],overwrite=True)
+                hp.write_cl(f1,cls[i,],overwrite=True)
+                
+
+    return cls
 
 
 def proj(dens_type=0,ishell=5,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
@@ -208,34 +214,4 @@ def ana(dens_type=0,ishell=5,ngrid=512,rsd=True):
 
     show()
     return clrec-clt
-
-
-def residues(ishell=5,ngrid=512,dens_types=(3,0,1,2),lmax=500):
-
-    densnames=("LogN","1LPT","2LPT","Gaussclip")
-    zval=(0,0.1,0.2,0.3,0.4,0.5)
-    zmax=zval[ishell]
-    zmin=zval[ishell-1]
-
-    lt,clt=model(dens_type,ishell,ngrid)
-
-    figure()
-    for i in dens_types :
-        f1=os.path.join("batch","ngrid{}".format(ngrid),"dens_type{}".format(i),"shell{}".format(ishell),"clmean.fits")
-        clrec=hp.read_cl(f1)
-        l=arange(len(clrec))
-        res=clrec-clt[l]
-        plot(res,label=densnames[i],alpha=0.8)
-        
-    plot(clt[l]/100,'k--',label=r"$C_\ell^{true}/100$")
- 
-    
-    legend(loc='lower right')
-    title(r"$z\in [{},{}]$".format(zmin,zmax))
-    axhline(0,color='k',lw=0.5)
-    xlabel(r"$\ell$")
-    ylabel(r"residue")
-    xlim(0,lmax)
-    tight_layout()
-    show()
 
