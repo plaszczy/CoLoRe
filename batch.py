@@ -102,7 +102,7 @@ def proj_all(dens_type=0,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
             cls[i,:]+=cl
     #normalize
     for i in range(0,4):
-        cls[i,]/=ncat
+        cls[i,:]/=ncat
 
     if write:
         for i in range(0,4):
@@ -112,8 +112,8 @@ def proj_all(dens_type=0,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
             clname="clmean.fits"
             if not rsd :
                 clname="clmean_norsd.fits"
-                f1=os.path.join(dirout,clname)
-                hp.write_cl(f1,cls[i,],overwrite=True)
+            f1=os.path.join(dirout,clname)
+            hp.write_cl(f1,cls[i],overwrite=True)
                 
 
     return cls
