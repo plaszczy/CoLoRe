@@ -113,6 +113,7 @@ def proj_all(dens_type=0,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
             if not rsd :
                 clname="clmean_norsd.fits"
             f1=os.path.join(dirout,clname)
+            print("writing {}".format(f1))
             hp.write_cl(f1,cls[i],overwrite=True)
                 
 
