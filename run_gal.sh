@@ -2,7 +2,7 @@
 NSIM=100
 
 dens_type=0
-ngrid=512
+ngrid=1024
 
 TEMPLATE="template_gal.cfg"
 OUTDIR="batch/ngrid$ngrid/dens_type${dens_type}"
@@ -16,7 +16,7 @@ seed=$RANDOM
  
 awk -v seed=$RANDOM -v dens=$dens_type -v ngrid=$ngrid '{if (/_SEED_/) {print "seed = "seed}  else if (/_DENS_TYPE_/) {print "dens_type="dens} else if (/_N_GRID_/) {print "n_grid="ngrid} else {print}}' template_gal.cfg > tt.cfg
 
-./CoLoRe tt.cfg
+mpiexec -f ~/machinefile16 -n 8 ./CoLoRe tt.cfg
 
 #renommer
 cp tt.cfg $OUTDIR/cat$seed.cfg
