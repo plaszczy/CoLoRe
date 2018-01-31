@@ -32,9 +32,10 @@ for i in range(1,5):
     cl=b.get(dens_type=dens,ngrid=ngrid,rsd=rsd,ishell=ishell)
     res=cl-clt
     var=2*(clt+1/nbar)**2/(2*l+1)
-    plot(res/sqrt(var))
-    plot(l,clt/max(clt),'--k')
-    xlim(1,250)
+    plot(l,clt/max(clt),'k')
+    fill(l,clt/max(clt),'r')
+    plot(res/sqrt(var),'k')
+    xlim(1,200)
     ylim(-1,1)
     zmax=zval[ishell]
     zmin=zval[ishell-1]
