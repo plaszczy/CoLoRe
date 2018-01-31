@@ -47,11 +47,11 @@ def proj_all(dens_type=0,ngrid=1024,nside=512,lmax=750,rsd=True,write=True):
             map=mp.astype(float)/Nmean-1.
             #anafast
             cl=hp.anafast(map,lmax=lmax,iter=0,pol=False,use_weights=True,datapath=os.environ['HEALPIXDATA'])
-            l=np.arange(len(cl))
-            s2=np.sum((2*l+1)*cl)/(4*np.pi)
-            print("\t -> shell={}: z in [{},{}]  Nsamp={}M sigma={:5.2} shot noise={:5.2}".format(ishell,zmin,zmax,Nsamp/1e6,np.sqrt(s2),1/nbar))
             #remove SN
             cl-=1./nbar
+            l=np.arange(len(cl))
+            s2=np.sum((2*l+1)*cl)/(4*np.pi)
+            print("\t -> shell={}: z in [{},{}]  Nsamp={:5.2}M sigma={:5.3} SN={:5.2}".format(ishell,zmin,zmax,Nsamp/1e6,np.sqrt(s2),1/nbar))
             cls[i,:]+=cl
         cpt+=1
     #normalize
