@@ -55,7 +55,7 @@ def proj_all(dens_type=0,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
             cls[i,:]+=cl
         cpt+=1
     #normalize
-    for i in np.range(0,4):
+    for i in range(0,4):
         cls[i,:]/=ncat
 
     if write:
