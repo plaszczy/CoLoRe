@@ -18,7 +18,7 @@ class Catalog:
         return self.zrec[w],self.ra[w],self.dec[w]
 
 
-def proj_all(dens_type=0,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
+def proj_all(dens_type=0,ngrid=1024,nside=512,lmax=750,rsd=True,write=True):
 
 
     npix=hp.nside2npix(nside)
@@ -34,7 +34,7 @@ def proj_all(dens_type=0,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
     cls=np.zeros((4,lmax+1))
     for file in files:
         cat=Catalog(file,rsd)
-        print("OK {}".format(cpt))
+        print("->OK {}".format(cpt))
         for i in range(0,4):
             ishell=i+2
             zmax=zval[ishell]

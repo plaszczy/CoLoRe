@@ -7,8 +7,8 @@ dens=0
 rsd=True
 shell=(2,3,4,5)
 #ngrid=256
-#ngrid=1024
 ngrid=512
+ngrid=1024
 newfig=True
 
 
