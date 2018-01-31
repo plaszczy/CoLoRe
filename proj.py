@@ -35,7 +35,7 @@ def proj_all(dens_type=0,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
     for file in files:
         cat=Catalog(file,rsd)
         print("OK {}".format(cpt))
-        for i in np.range(0,4):
+        for i in range(0,4):
             ishell=i+2
             zmax=zval[ishell]
             zmin=zval[ishell-1]
@@ -48,8 +48,8 @@ def proj_all(dens_type=0,ngrid=512,nside=256,lmax=750,rsd=True,write=True):
             #anafast
             cl=hp.anafast(map,lmax=lmax,iter=0,pol=False,use_weights=True,datapath=os.environ['HEALPIXDATA'])
             l=np.arange(len(cl))
-            s2=np.sum((2*l+1)*cl)/(4*pi)
-            print("\t -> shell={}: z in [{},{}]  Nsamp={:5.2}M sigma={:5.2} shot noise={:5.2}".format(ishell,zmin,zmax,Nsamp/1e6,sqrt(s2),1/nbar))
+            s2=np.sum((2*l+1)*cl)/(4*np.pi)
+            print("\t -> shell={}: z in [{},{}]  Nsamp={:10.2f}M shot noise={:5.2}".format(ishell,zmin,zmax,Nsamp/1e6,np.sqrt(s2),1/nbar))
             #remove SN
             cl-=1./nbar
             cls[i,:]+=cl
