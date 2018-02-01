@@ -1,0 +1,15 @@
+package CoLoRe
+
+macro cppflags " -O3 -g -pipe -ansi -pedantic -std=c++11 -fopenmp -ffast-math -m64 -fpic -Wall "
+macro cpplinkflags " -fopenmp "
+
+#Healpix
+include_dirs " $(HEALPIXCXX)/include"
+macro_append cppflags ' -DHEALPIXDATA=\"$(HEALPIXDIR)/data\" '
+
+macro_append CoLoRe_linkopts "-L$(HEALPIXCXX)/lib -lhealpix_cxx -lsharp -lcxxsupport -lfftpack -lc_utils -lcfitsio"
+
+
+macro application_suffix ""
+#
+application proj src=../src proj.cc
