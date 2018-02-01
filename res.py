@@ -13,9 +13,15 @@ newfig=True
 
 zval=(0,0.1,0.2,0.3,0.4,0.5)
 
+Nz=5000
+Nsamp=41253*Nz*0.1
+print("Nz={} mean Ngal={}".format(Nz,Nsamp))
+nbar=Nsamp/(4*np.pi)
+
+
 if newfig:
-    fig=figure()
-    fig.suptitle("Ngrid={}".format(ngrid), fontsize=14)
+    fig=figure(figsize=(14,10))
+    #fig.suptitle("Ngrid={}".format(ngrid), fontsize=14)
 for i in range(1,5):
     if i==1 :
         ax=subplot(2,2,i)
@@ -23,19 +29,23 @@ for i in range(1,5):
         subplot(2,2,i,sharex=ax,sharey=ax)
     ishell=i+1
     l,clt=b.model(dens_type=dens,ngrid=ngrid,rsd=rsd,ishell=ishell)
-    cl=b.get(dens_type=dens,ngrid=ngrid,rsd=rsd,ishell=ishell)
-    plot(l,cl-clt,'k',alpha=.7)
-    fill(l,clt/max(clt)*1e-6,'r',alpha=0.7)
-    #diff_fac(l,clt,cl,do_legend=do_legend)
+    clrec=b.get(dens_type=dens,ngrid=ngrid,rsd=rsd,ishell=ishell)
+    cvar=2*(clt+1/nbar)**2/(2*l+1)
+    plot(clrec,'k',label=r"$<C_\ell^i>-SN$",lw=3)
+    plot(clt,'r',label=r"$C_\ell^{th}$",lw=1)
+    plot(clrec-clt,'b',label='residue')
+    fill_between(l,clt+sqrt(cvar),clt-sqrt(cvar),color='r',alpha=0.1)
+    plot(l,clrec-clt)
     zmax=zval[ishell]
     zmin=zval[ishell-1]
-    title(r"$z\in [{},{}]$".format(zmin,zmax),fontsize=9)
+    legend()
+    title(r"$z\in [{},{}]$".format(zmin,zmax),fontsize=14)
     #text(0.4, 0.9,r"$z\in [{},{}]$".format(zmin,zmax), transform=gca().transAxes,fontsize=12)
 
     ax0()
     xlabel(r"$\ell$")
-    xlim(0,500)
-    #ylabel(r"$\Delta C_\ell$")
+    xlim(0,250)
+    ylabel(r"$C_\ell$")
 tight_layout()
-ylim(-1e-6,1e-6)
+ylim(-5e-5,2e-4)
 print("ngrid={}".format(ngrid))
