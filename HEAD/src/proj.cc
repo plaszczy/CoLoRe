@@ -28,7 +28,7 @@
 using namespace std;
 
 
-using GALTYPE = float32;
+using GALTYPE = float64;
 
 template<typename T> struct galaxies{
   arr<T> ra;
@@ -72,29 +72,27 @@ public:
   //constructors
   Shell(const Catalog<T>& c,const Window* w):cat(c),win(w){};
 
-  inline void fillIndex(const size_t& i) {index.push_back(i);}
+  inline void fillIndex(const uint64& i) {index.push_back(i);}
 
   void projectMap(int nside){
     map.SetNside(nside,RING); 
     //loop on gals
-    for (auto i : index) {
-      size_t igal=index[i];
+    for (auto igal : index) {
       double theta=degr2rad*(90.-(cat.gal.dec)[igal]);
       double phi=degr2rad*(cat.gal.ra)[igal];
-      //cout << "gal=" << igal << ": " << theta << "\t" << phi <<endl; 
       pointing p(theta,phi);
       p.normalize();
-      long ipix=map.ang2pix(p);
+      uint32 ipix=map.ang2pix(p);
       map[ipix]+=win->weight(cat.gal.z[igal]);
     }
   }
   void writeMap(){
     stringstream os;
-    os << "mapgal_"<< win->zmin() << "-" << win->zmax() <<".fits";
+    os << "map_"<< win->zmin() << "-" << win->zmax() <<".fits";
     write_Healpix_map_to_fits(os.str(),map,planckType<T>());
   }
 
-  vector<size_t> index;
+  vector<uint64> index;
   const Catalog<T>& cat;
   const Window* win;
   Healpix_Map<T> map;
@@ -121,22 +119,22 @@ auto main(int argc,char** argv)-> int {
     vector<Shell<GALTYPE> > shell;
     for (size_t i=0;i<zmean.size();i++) 
       shell.push_back(Shell<GALTYPE> (cat,new UniformWindow(zmean[i]-width,zmean[i]+width)));
-
-
-    //fill shell index looping once on the catalog
-    for (size_t i=0;i<cat.gal.z.size();i++){
+    
+    
+    //singe loop on catalog to fill the shells
+    for (uint64 i=0;i<cat.gal.z.size();i++){
       double z=cat.gal.z[i];
-      for (auto &s : shell)
+      for (auto &s : shell){
 	if (s.win->in(z)) s.fillIndex(i);
+      }
     }
     
-    //shell loop
-    for (auto s : shell){
-      cout <<" shell [" << s.win->zmin() <<"," <<  s.win->zmax() << "]: " << s.index.size() << " gals" << endl;
-      s.projectMap(nside);
-      s.writeMap();
-    }
-
+  //shell loop
+     for (auto s : shell){
+       cout <<" shell [" << s.win->zmin() <<"," <<  s.win->zmax() << "]: " << s.index.size() << " gals igal=" << s.index[0] << "\t" << s.index.back() << endl;
+       s.projectMap(nside);
+       s.writeMap();
+     }
 
 
   }
