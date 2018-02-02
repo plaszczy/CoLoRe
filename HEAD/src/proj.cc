@@ -4,6 +4,7 @@
 #include "healpix_map.h"
 #include "alm.h"
 #include "powspec.h"
+#include"datatypes.h"
 #include "healpix_map_fitsio.h"
 #include "alm_healpix_tools.h"
 #include "arr.h"
@@ -27,7 +28,15 @@
 using namespace std;
 
 
-class Catalog
+using GALTYPE = float32;
+
+template<typename T> struct galaxies{
+  arr<T> ra;
+  arr<T> dec;
+  arr<T> z;
+};
+
+template<typename T> class Catalog
 {
   
 public:
@@ -36,31 +45,32 @@ public:
     fh.open(fn);
     fh.goto_hdu(2);
     //read data arrays
-    fh.read_entire_column(2,ra);
-    fh.read_entire_column(3,dec);
-    fh.read_entire_column(4,z);
+    fh.read_entire_column(2,gal.ra);
+    fh.read_entire_column(3,gal.dec);
+    fh.read_entire_column(4,gal.z);
     if (rsd) {
       arr<float> dz;
       fh.read_entire_column(5,dz);
-      for (size_t i=0;i<dz.size();i++) z[i]+=dz[i];
+      for (size_t i=0;i<dz.size();i++) gal.z[i]+=dz[i];
     }
-    cout << "OK: read catalog= " << fn << " with " << z.size() << " entries" << endl;
+    cout << "OK: read catalog= " << fn << " with " << gal.z.size() << " entries" << endl;
     fh.close();
       
   }
- 
 
-  arr<float> ra,dec,z;
+  galaxies<T> gal;
+
+ 
 };
 
 
-class Shell
+template<typename T> class Shell
 {
 
 public:
 
   //constructors
-  Shell(const Catalog& c,const Window* w):cat(c),win(w){};
+  Shell(const Catalog<T>& c,const Window* w):cat(c),win(w){};
 
   inline void fillIndex(const size_t& i) {index.push_back(i);}
 
@@ -69,21 +79,25 @@ public:
     //loop on gals
     for (auto i : index) {
       size_t igal=index[i];
-      pointing p(degr2rad*(90.-(cat.dec)[igal]),degr2rad*(cat.ra)[igal]);
+      double theta=degr2rad*(90.-(cat.gal.dec)[igal]);
+      double phi=degr2rad*(cat.gal.ra)[igal];
+      //cout << "gal=" << igal << ": " << theta << "\t" << phi <<endl; 
+      pointing p(theta,phi);
+      p.normalize();
       long ipix=map.ang2pix(p);
-      map[ipix]+=win->weight(cat.z[igal]);
+      map[ipix]+=win->weight(cat.gal.z[igal]);
     }
   }
   void writeMap(){
     stringstream os;
     os << "mapgal_"<< win->zmin() << "-" << win->zmax() <<".fits";
-    write_Healpix_map_to_fits(os.str(),map,PLANCK_FLOAT32);
+    write_Healpix_map_to_fits(os.str(),map,planckType<T>());
   }
 
   vector<size_t> index;
-  const Catalog& cat;
+  const Catalog<T>& cat;
   const Window* win;
-  Healpix_Map<double> map;
+  Healpix_Map<T> map;
 
 
 };
@@ -101,17 +115,17 @@ auto main(int argc,char** argv)-> int {
   try{
     
     //read catalog
-    Catalog cat(argv[1],rsd);
+    Catalog<GALTYPE> cat(argv[1],rsd);
     
     //create shells
-    vector<Shell> shell;
+    vector<Shell<GALTYPE> > shell;
     for (size_t i=0;i<zmean.size();i++) 
-      shell.push_back(Shell(cat,new UniformWindow(zmean[i]-width,zmean[i]+width)));
+      shell.push_back(Shell<GALTYPE> (cat,new UniformWindow(zmean[i]-width,zmean[i]+width)));
 
 
     //fill shell index looping once on the catalog
-    for (size_t i=0;i<cat.z.size();i++){
-      double z=cat.z[i];
+    for (size_t i=0;i<cat.gal.z.size();i++){
+      double z=cat.gal.z[i];
       for (auto &s : shell)
 	if (s.win->in(z)) s.fillIndex(i);
     }
