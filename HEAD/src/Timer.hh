@@ -72,7 +72,8 @@ private:
 };
 
 inline std::ostream& operator<<(std::ostream& o,Timer& t){
-  o << " [time: partial="<< t.partial() << " s /total="<< t.total() << " s]";
+  //  o << " [time: partial="<< t.partial() << " s /total="<< t.total() << " s]";
+  o << " in "<< t.partial() << " s";
   return o;
 }
 
