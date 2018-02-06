@@ -1,0 +1,20 @@
+package CoLoRe
+
+
+macro cpp "icpc"
+macro cppflags  " -O3 -qopenmp -Wbrief -no-prec-div -fp-model fast=2 -std=c++11 "
+macro_append cpplinkflags  " -liomp5 "
+
+
+#Healpix
+include_dirs " $(HEALPIXCXX)/include"
+macro_append cppflags ' -DHEALPIXDATA=\"$(HEALPIXDIR)/data\" '
+
+include_dirs "/sps/lsst/Library/cfitsio3360/include"
+
+macro_append CoLoRe_linkopts "-L$(HEALPIXCXX)/lib -lhealpix_cxx -lsharp -lcxxsupport -lfftpack -lc_utils -L/sps/lsst/Library/cfitsio3360/lib -lcfitsio"
+
+
+macro application_suffix ""
+#
+application proj src=../src proj.cc
