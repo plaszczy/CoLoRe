@@ -1,6 +1,8 @@
 
 #include"Window.hh"
+#include"Timer.hh"
 
+#include "arr.h"
 #include "healpix_map.h"
 #include "alm.h"
 #include "powspec.h"
@@ -12,27 +14,24 @@
 #include "powspec_fitsio.h"
 
 #include"string_utils.h"
-#include "arr.h"
 #include "fitshandle.h"
 #include "alm_powspec_tools.h"
-#include"lsconstants.h"
+#include "lsconstants.h"
 #include "announce.h"
+#include "paramfile.h"
 
 #include<iostream>
 #include<fstream>
 #include<cmath>
 #include<string>
 #include<sstream>
-
-#include"Timer.hh"
-#include <thread>
-
 #include<string>
 #include<vector>
+#include<iterator>
 using namespace std;
 
 
-using GALTYPE = float64;
+using GALTYPE = float32;
 
 Timer* timer=nullptr;
 
@@ -51,26 +50,18 @@ public:
     fh.open(fn);
     fh.goto_hdu(2);
     //read data arrays
-    readcol(2,gal.ra);
-    readcol(3,gal.dec);
-    readcol(4,gal.z);
+    fh.read_entire_column(2,gal.ra);
+    fh.read_entire_column(3,gal.dec);
+    fh.read_entire_column(4,gal.z);
     if (rsd) {
       arr<T> dz;
-      readcol(5,dz);
+      fh.read_entire_column(5,dz);
       for (size_t i=0;i<dz.size();i++) gal.z[i]+=dz[i];
     }
     fh.close();
-      
-  }
-  void read_ra(){
-    fh.read_entire_column(2,gal.ra);
   }
 
-  void readcol(int icol,arr<T>& arr)
-  {
-     fh.read_entire_column(icol,arr);
-  }
-
+  //data
   galaxies<T> gal;
   fitshandle fh;
  
@@ -135,7 +126,7 @@ public:
   vector<uint64> index;
   const Catalog<T>& cat;
   const Window* win;
-  Healpix_Map<T> map;
+  Healpix_Map<double> map;
   double avg;
   Alm<xcomplex<double> > alm;
 
@@ -147,12 +138,29 @@ auto main(int argc,char** argv)-> int {
 PLANCK_DIAGNOSIS_BEGIN
 
   announce(argv[0]);
- vector<double> zmean={0.15,0.25,0.35,0.45};
- double width=0.05;
- double nsigcut=3;
- int x_depth = 1;
 
- string window_type="TopHat";
+//decode paramfile
+ paramfile params(argv[1],false);
+
+ const string filein=params.find<string>("filein","XXX");
+ const string fileout=params.find<string>("fileout","!cls.fits");
+
+ string mean=params.find<string>("mean","0");
+
+ vector<string> words;
+ tokenize(mean,',',words);
+ vector<double> zmean;
+ for (auto zw : words) zmean.push_back(stringToData<double>(zw));
+ cout << "z shells=";
+ copy(zmean.begin(),zmean.end(),ostream_iterator<double>(cout,"\t"));
+ cout <<endl;
+
+ const double width=params.find<double>("width",0.05);
+ const double nsigcut=params.find<double>("n_sigma_cut",3);
+ int x_depth =params.find<double>("cross_depth",1); 
+
+ string window_type=params.find<string>("wtype","TopHat");
+
  vector<Window*> windows;
  for (size_t i=0;i<zmean.size();i++){
    if (window_type=="TopHat") 
@@ -163,14 +171,13 @@ PLANCK_DIAGNOSIS_BEGIN
      throw string("unknown window="+window_type);
  }
 
- const int nside=512;
- const int lmax=750;
- const char* fileout="!cls.fits";
- bool rsd=true;
+ const int nside=params.find<int>("nside",512); 
+ const int lmax=params.find<int>("Lmax",751)-1; 
+ const bool rsd=params.find<int>("include_rsd",1)==1;
 
  timer=new Timer();
  //read catalog
- Catalog<GALTYPE> cat(argv[1],rsd);
+ Catalog<GALTYPE> cat(filein,rsd);
  cout << "Read catalog= " << argv[1] << " with " << cat.gal.z.size()/1e6 << " M entries " << *timer <<endl; 
     
  //create shellss
