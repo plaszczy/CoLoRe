@@ -140,7 +140,7 @@ PLANCK_DIAGNOSIS_BEGIN
   announce(argv[0]);
 
 //decode paramfile
- paramfile params(argv[1],false);
+ paramfile params(argv[1]);
 
  const string filein=params.find<string>("filein","XXX");
  const string fileout=params.find<string>("fileout","!cls.fits");
@@ -174,6 +174,7 @@ PLANCK_DIAGNOSIS_BEGIN
  const int nside=params.find<int>("nside",512); 
  const int lmax=params.find<int>("Lmax",751)-1; 
  const bool rsd=params.find<int>("include_rsd",1)==1;
+ const bool remove_SN=params.find<bool>("remove_shotnoise",true);
 
  timer=new Timer();
  //read catalog
@@ -247,12 +248,16 @@ PLANCK_DIAGNOSIS_BEGIN
    for(int jMS=iMS+jMSoff7; jMS<=std::min(iMS+x_depth,nWin-1); jMS++){
      cout << iMS <<"x" << jMS <<endl;
      PowSpec powspec;
-     if (iMS==jMS)
-       extract_powspec(shells[iMS].alm,powspec);
-     else
-       extract_crosspowspec(shells[iMS].alm,shells[jMS].alm,powspec);
- 
-       fout.write_column(icol++,powspec.tt());
+     iMS==jMS ? extract_powspec(shells[iMS].alm,powspec)
+     : extract_crosspowspec(shells[iMS].alm,shells[jMS].alm,powspec);
+
+     arr<double> cl=powspec.tt();
+
+     //shot noise for auto-spectrea
+     if (iMS==jMS && remove_SN)
+       for (auto &val:cl) val-=(4*M_PI)/shells[iMS].index.size();
+
+     fout.write_column(icol++,cl);
      
 
 
@@ -263,6 +268,7 @@ PLANCK_DIAGNOSIS_BEGIN
  
 
  //loop on shells
+ fout.set_key("removeSN",remove_SN,"has the shot noise been subtracted?");
  for (size_t i=0;i<shells.size();i++){
    double Ntot=shells[i].index.size();
    fout.add_comment("NEW SHELL********************************************* ");

@@ -1,6 +1,8 @@
 filein=cat2149.fits
 fileout=!cls.fits
 
+remove_shotnoise=true
+
 nside=512
 Lmax = 751
 include_rsd = 1
