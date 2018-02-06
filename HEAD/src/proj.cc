@@ -11,6 +11,7 @@
 
 #include "powspec_fitsio.h"
 
+#include"string_utils.h"
 #include "arr.h"
 #include "fitshandle.h"
 #include "alm_powspec_tools.h"
@@ -24,7 +25,7 @@
 #include<sstream>
 
 #include"Timer.hh"
-
+#include <thread>
 
 #include<string>
 #include<vector>
@@ -47,25 +48,31 @@ template<typename T> class Catalog
   
 public:
   Catalog(string fn,bool rsd=true){
-    fitshandle fh;
     fh.open(fn);
     fh.goto_hdu(2);
     //read data arrays
-    fh.read_entire_column(2,gal.ra);
-    fh.read_entire_column(3,gal.dec);
-    fh.read_entire_column(4,gal.z);
+    readcol(2,gal.ra);
+    readcol(3,gal.dec);
+    readcol(4,gal.z);
     if (rsd) {
-      arr<float> dz;
-      fh.read_entire_column(5,dz);
+      arr<T> dz;
+      readcol(5,dz);
       for (size_t i=0;i<dz.size();i++) gal.z[i]+=dz[i];
     }
-    cout << "Read catalog= " << fn << " with " << gal.z.size()/1e6 << " M entries " << *timer <<endl; 
     fh.close();
       
   }
+  void read_ra(){
+    fh.read_entire_column(2,gal.ra);
+  }
+
+  void readcol(int icol,arr<T>& arr)
+  {
+     fh.read_entire_column(icol,arr);
+  }
 
   galaxies<T> gal;
-
+  fitshandle fh;
  
 };
 
@@ -84,7 +91,10 @@ public:
     map.SetNside(nside,RING); 
     map.fill(0.);
     //loop on gals
-    for (auto igal : index) {
+#pragma omp parallel for schedule(dynamic,5000)
+    //for (auto igal : index) {
+    for (size_t i=0;i<index.size();i++) {
+      uint32 igal=index[i];
       double theta=degr2rad*(90.-(cat.gal.dec)[igal]);
       double phi=degr2rad*(cat.gal.ra)[igal];
       pointing p(theta,phi);
@@ -139,25 +149,39 @@ PLANCK_DIAGNOSIS_BEGIN
   announce(argv[0]);
  vector<double> zmean={0.15,0.25,0.35,0.45};
  double width=0.05;
+ double nsigcut=3;
+ int x_depth = 1;
+
+ string window_type="TopHat";
+ vector<Window*> windows;
+ for (size_t i=0;i<zmean.size();i++){
+   if (window_type=="TopHat") 
+     windows.push_back(new UniformWindow(zmean[i]-width,zmean[i]+width));
+   else if (window_type=="Gauss")
+     windows.push_back(new GaussWindow(zmean[i],width,nsigcut));
+   else
+     throw string("unknown window="+window_type);
+ }
+
  const int nside=512;
  const int lmax=750;
  const char* fileout="!cls.fits";
- int x_depth = 0;
- string window_type;
  bool rsd=true;
 
  timer=new Timer();
  //read catalog
  Catalog<GALTYPE> cat(argv[1],rsd);
+ cout << "Read catalog= " << argv[1] << " with " << cat.gal.z.size()/1e6 << " M entries " << *timer <<endl; 
     
  //create shellss
  vector<Shell<GALTYPE> > shells;
  for (size_t i=0;i<zmean.size();i++) 
-   shells.push_back(Shell<GALTYPE>(cat,new UniformWindow(zmean[i]-width,zmean[i]+width)));
+   shells.push_back(Shell<GALTYPE>(cat,windows[i]));
     
     
  //singe loop on catalog to fill the shellss
- for (uint64 i=0;i<cat.gal.z.size();i++){
+ //#pragma omp parallel for shared(cat,shells)
+ for (uint32 i=0;i<cat.gal.z.size();i++){
    double z=cat.gal.z[i];
    for (auto &s : shells){
      if (s.win->in(z)) s.fillIndex(i);
@@ -214,7 +238,7 @@ PLANCK_DIAGNOSIS_BEGIN
  
  for(int iMS=0;iMS<nWin;iMS++){
    for(int jMS=iMS+jMSoff7; jMS<=std::min(iMS+x_depth,nWin-1); jMS++){
-     cout << " ->writing shell " << iMS <<"x" << jMS <<endl;
+     cout << iMS <<"x" << jMS <<endl;
      PowSpec powspec;
      if (iMS==jMS)
        extract_powspec(shells[iMS].alm,powspec);
@@ -230,21 +254,22 @@ PLANCK_DIAGNOSIS_BEGIN
  
  //keys
  
- //write keys
- //     fout.add_key("bias",para.bias,"constant galactic bias");
- //     fout.add_key("rsd",para.include_rsd,"did we include rsd computation");
- //     fout.add_key("Rsmooth",Rsm,"smoohing radius (Mpc)");
- //     //windows
- //     for (size_t iwin=0;iwin<Zwin.size();iwin++){
- //       fout.add_key("wtype"+dataToString(iwin),Param::GetSelectType(para.wtypes[iwin]),"window type");
- //       double z1=(Zwin[iwin]->GetZMin()+Zwin[iwin]->GetZMax())/2;
- //       fout.add_key("zmean"+dataToString(iwin),z1,"mean redshift window");
- //       fout.add_key("chimean"+dataToString(iwin),cosmo->r(z1),"combile distance to zmean (Mpc)");
- //       fout.add_key("zmin"+dataToString(iwin),Zwin[iwin]->GetZMin(),"min redshift");
- //       fout.add_key("zmax"+dataToString(iwin),Zwin[iwin]->GetZMax(),"max redshift");
- //     }
 
- cout << "total time: " << timer->total() << endl;
+ //loop on shells
+ for (size_t i=0;i<shells.size();i++){
+   double Ntot=shells[i].index.size();
+   fout.add_comment("NEW SHELL********************************************* ");
+   fout.set_key("Ngal"+dataToString(i),Ntot,"number of galaxies in shell");
+   fout.set_key("Nbar"+dataToString(i),Ntot/(4*M_PI),"mean number per steradian");
+   const Window* win=shells[i].win;
+   fout.set_key("wintype"+dataToString(i),win->type(),"window type");
+   double z1=(win->zmin()+win->zmax())/2;
+   fout.set_key("zmean"+dataToString(i),z1,"mean redshift window");
+   fout.set_key("zmin"+dataToString(i),win->zmin(),"min redshift");
+   fout.set_key("zmax"+dataToString(i),win->zmax(),"max redshift");
+ }
+
+ cout << "partial time=" << timer->partial() << " Total=" << timer->total() << endl;
  delete timer;
 
 PLANCK_DIAGNOSIS_END
