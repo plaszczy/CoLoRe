@@ -85,7 +85,7 @@ PLANCK_DIAGNOSIS_BEGIN
  std::vector<fitscolumn> cols;
 
  //first is ell
- cols.push_back(fitscolumn(colnames[0], "",1,planckType<int>()));
+ cols.push_back(fitscolumn(colnames[0], "",1,planckType<double>()));
  for (size_t i=1;i<colnames.size();i++)
    cols.push_back(fitscolumn(colnames[i],"",1,planckType<double>()));
  

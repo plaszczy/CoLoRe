@@ -233,7 +233,7 @@ PLANCK_DIAGNOSIS_BEGIN
 
  //header
  std::vector<fitscolumn> cols;
- cols.push_back(fitscolumn("ell", "",1,planckType<int>()));
+ cols.push_back(fitscolumn("ell", "",1,planckType<double>()));
  for (size_t i=0;i<pair_names.size();i++)
    cols.push_back(fitscolumn("cl"+pair_names[i],"",1,planckType<double>()));
  fout.insert_bintab(cols);

@@ -1,4 +1,4 @@
-grep -v file config.par > tmp.par
+grep -v file tophat4.par > tmp.par
 filein=$1
 echo "filein=$filein" >> tmp.par
 fileout=cls_${filein}
