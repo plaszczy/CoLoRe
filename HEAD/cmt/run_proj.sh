@@ -1,6 +1,8 @@
-grep -v file config.par > tmp.par
+grep -v file tophat4.par > tmp.par
 filein=$1
 echo "filein=$filein" >> tmp.par
-fileout=cls_${filein}
+dir=$(dirname $filein)
+f=$(basename $filein)
+fileout="!"$dir/cls_${f}
 echo "fileout=$fileout" >> tmp.par
 ../$CMTCONFIG/proj tmp.par

@@ -281,7 +281,7 @@ PLANCK_DIAGNOSIS_BEGIN
    fout.set_key("zmin"+dataToString(i),win->zmin(),"min redshift");
    fout.set_key("zmax"+dataToString(i),win->zmax(),"max redshift");
  }
-
+ cout << "Writing -> " << fileout << endl;
  cout << "partial time=" << timer->partial() << " Total=" << timer->total() << endl;
  delete timer;
 
