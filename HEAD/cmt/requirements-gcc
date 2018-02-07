@@ -13,3 +13,4 @@ macro_append CoLoRe_linkopts "-L$(HEALPIXCXX)/lib -lhealpix_cxx -lsharp -lcxxsup
 macro application_suffix ""
 #
 application proj src=../src proj.cc
+application combine_cl src=../src combine_cl.cc
