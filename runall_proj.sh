@@ -12,6 +12,7 @@ conf=$2
 ls $dir/cat*.fits
 n=`ls -1  $dir/cat*.fits | wc -l`
 
+echo "OMP_NUM_THREADS=${OMP_NUM_THREADS}"
 echo "$n files : OK? [y/n]"
 read answer
 
