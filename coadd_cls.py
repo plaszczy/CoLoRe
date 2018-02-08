@@ -3,7 +3,7 @@ from astropy.io import fits
 from astropy.table import Table
 import argparse
 
-parser = argparse.ArgumentParser(description='coadd cls from a directory')
+parser = argparse.ArgumentParser(description='coadd the cls from a directory')
 parser.add_argument('clpattern', help='dir/cls*.fits like pattern')
 
 args= parser.parse_args()
