@@ -10,9 +10,9 @@ macro_append cpplinkflags  " -liomp5 "
 include_dirs " $(HEALPIXCXX)/include"
 macro_append cppflags ' -DHEALPIXDATA=\"$(HEALPIXDIR)/data\" '
 
-include_dirs "/sps/lsst/Library/cfitsio3360/include"
+include_dirs "$(CFITSIODIR)/include"
 
-macro_append CoLoRe_linkopts "-L$(HEALPIXCXX)/lib -lhealpix_cxx -lsharp -lcxxsupport -lfftpack -lc_utils -L/sps/lsst/Library/cfitsio3360/lib -lcfitsio"
+macro_append CoLoRe_linkopts "-L$(HEALPIXCXX)/lib -lhealpix_cxx -lsharp -lcxxsupport -lfftpack -lc_utils -L$(CFITSIODIR)/lib -lcfitsio"
 
 
 macro application_suffix ""
