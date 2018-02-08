@@ -7,8 +7,16 @@ macro cpplinkflags " -fopenmp "
 include_dirs " $(HEALPIXCXX)/include"
 macro_append cppflags ' -DHEALPIXDATA=\"$(HEALPIXDIR)/data\" '
 
-macro_append CoLoRe_linkopts "-L$(HEALPIXCXX)/lib -lhealpix_cxx -lsharp -lcxxsupport -lfftpack -lc_utils -lcfitsio"
 
+#cfitsio must be consitent with the one used when buiding healpix
+include_dirs "$(CFITSIODIR)/include"
+
+
+macro_append CoLoRe_linkopts "-L$(HEALPIXCXX)/lib -lhealpix_cxx -lsharp -lcxxsupport -lfftpack -lc_utils -L$(CFITSIODIR)/lib -lcfitsio "
+
+
+macro_append CoLoRe_linkopts ""\
+	MARDEC  "-lcurl "
 
 macro application_suffix ""
 #
