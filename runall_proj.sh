@@ -1,3 +1,4 @@
+#!/bin/env bash
 
 nargs=$#
 if ! [ $nargs -eq 2 ]; then
