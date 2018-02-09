@@ -35,8 +35,8 @@ USE_MPI = no
 FFTW_INC = -I/sps/lsst/Library/fftw-3.3.6/amd64_sl7/icc/include
 FFTW_LIB = -L/sps/lsst/Library/fftw-3.3.6/amd64_sl7/icc/lib
 #cfitsio
-FITS_INC = -I/usr/include/cfitsio
-#FITS_LIB = -L/usr/lib64
+FITS_INC = -I/sps/lsst/Library/cfitsio3360/include
+FITS_LIB = -L/sps/lsst/Library/cfitsio3360/lib
 #cfitsio
 HDF5_INC =
 HDF5_LIB =

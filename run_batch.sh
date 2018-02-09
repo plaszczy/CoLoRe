@@ -53,7 +53,7 @@ cd $OUTDIR
 
 
 ###################################################
-cat > colore_run  <<EOBATCH
+cat > colore_run.sh  <<EOBATCH
 #!/bin/bash
 
 cd \$TMPDIR
@@ -70,15 +70,15 @@ source /usr/local/intel/icc/bin/iccvars.sh
 source $LSSTLIB/CMT/v1r26/mgr/setup.sh
 
 # copies locale execs
-cp $HERE/$HEAD/$CMTCONFIG/CoLoRe .
-cp $HERE/$HEAD/$CMTCONFIG/proj .
+cp $HERE/HEAD/$CMTCONFIG/CoLoRe .
+cp $HERE/HEAD/$CMTCONFIG/proj .
 
 cp $OUTDIR/$COLORECONF .
 cp $OUTDIR/$SHELLSCONF .
 
 cp $HERE/data/classgal_pk_z0.dat .
 cp $HERE/test_files/Nz_5000.txt .
-cp $HERE/test_files/Bz_test.txt.
+cp $HERE/test_files/Bz_test.txt .
 
 ls
 #
@@ -113,7 +113,7 @@ EOBATCH
 if [ -z "${QSUB_CMD}" ] ; then
 QSUB_CMD="qsub -P P_$GROUP -pe multicores $NCORES -q mc_long -R y -j y -l sps=1"
 fi
-jobsub="${QSUB_CMD} -o $PWD -N $(basename $OUTDIR) -t $range colore_run"
+jobsub="${QSUB_CMD} -o $PWD -N $(basename $OUTDIR) -t $range colore_run.sh"
 
 echo "about to run : $jobsub"
 echo "OK? [y/n]"
