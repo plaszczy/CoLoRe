@@ -51,7 +51,6 @@ fi
 # go into OUTDIR
 cd $OUTDIR
 
-
 ###################################################
 cat > colore_run.sh  <<EOBATCH
 #!/bin/bash
@@ -76,9 +75,7 @@ cp $HERE/HEAD/$CMTCONFIG/proj .
 cp $OUTDIR/$COLORECONF .
 cp $OUTDIR/$SHELLSCONF .
 
-cp $HERE/data/classgal_pk_z0.dat .
-cp $HERE/test_files/Nz_5000.txt .
-cp $HERE/test_files/Bz_test.txt .
+cp -r $HERE/data .
 
 ls
 #
