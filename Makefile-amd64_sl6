@@ -3,7 +3,6 @@
 ###Compiler and compilation options
 COMP_SER = icc
 COMP_MPI = mpicc
-#OPTIONS = -Wall -O3 -std=c99
 OPTIONS = -O3 -std=c99 -qopenmp
 #
 ### Behavioural flags
@@ -11,6 +10,8 @@ OPTIONS = -O3 -std=c99 -qopenmp
 DEFINEFLAGS += -D_LONGIDS
 #Use normalized bias model
 #DEFINEFLAGS += -D_BIAS_MODEL_2
+#Use linear bias model
+#DEFINEFLAGS += -D_BIAS_MODEL_3
 #Generate debug help. Only useful for development
 DEFINEFLAGS += -D_DEBUG
 #Use double precision floating point? Set to "yes" or "no"
@@ -19,8 +20,6 @@ USE_SINGLE_PRECISION = yes
 ADD_EXTRA_KAPPA = yes
 #Compile with HDF5 capability? Set to "yes" or "no"
 USE_HDF5 = no
-#Compile with FITS capability? Set to "yes" or "no"
-USE_FITS = yes
 #Use OMP parallelization? Set to "yes" or "no"
 USE_OMP = yes
 #Use MPI parallelization? Set to "yes" or "no"
@@ -45,14 +44,18 @@ HDF5_LIB =
 CONF_INC = -I/sps/lsst/Library/libconfig-1.5/include
 CONF_LIB = -L/sps/lsst/Library/libconfig-1.5/lib
 #healpix
-HPIX_INC = -I/sps/lsst/dev/plaszczy/lib/Healpix_3.31/amd64_sl6/include
-HPIX_LIB = -L/sps/lsst/dev/plaszczy/lib/Healpix_3.31/amd64_sl6/lib
+HPIX_INC = -I/sps/lsst/users/plaszczy/lib/Healpix_3.31/amd64_sl6/include
+HPIX_LIB = -L/sps/lsst/users/plaszczy/lib/Healpix_3.31/amd64_sl6/lib
 #libsharp
-SHT_INC = -I/sps/lsst/dev/plaszczy/lib/Healpix_3.31/src/cxx/amd64_sl6/linux_icc/include
-SHT_LIB = -L/sps/lsst/dev/plaszczy/lib/Healpix_3.31/src/cxx/amd64_sl6/linux_icc/lib
+SHT_INC = -I/sps/lsst/users/plaszczy/lib/Healpix_3.31/src/cxx/amd64_sl6/linux_icc/include
+SHT_LIB = -L/sps/lsst/users/plaszczy/lib/Healpix_3.31/src/cxx/amd64_sl6/linux_icc/lib
+#
+
+
 #
 ########## End of user-definable ##########
 
+USE_FITS = yes
 DEFINEFLAGS += -DHAVE_INLINE -DGSL_RANGE_CHECK_OFF 
 
 ifeq ($(strip $(USE_OMP)),yes)
@@ -116,14 +119,18 @@ COSMOMADO = src/cosmo_mad.o
 COSMOO = src/cosmo.o
 FOURIERO = src/fourier.o
 DENSO = src/density.o
-LCO = src/lightcone.o
+SRCSO = src/srcs.o
+IMAPO = src/imap.o
+KAPPAO = src/kappa.o
+ISWO = src/isw.o
 IOO = src/io.o
 HPIXO = src/healpix_extra.o
-PIXO = src/pixelization.o
+BEAMO = src/beaming.o
 PREDICTO = src/predictions.o
 FFTLOGO = src/fftlog.o
 MAIN = src/main.c
-OFILES = $(COMMONO) $(COSMOMADO) $(COSMOO) $(FOURIERO) $(DENSO) $(LCO) $(IOO) $(HPIXO) $(PIXO) $(PREDICTO) $(FFTLOGO)
+OFILES = $(COMMONO) $(COSMOMADO) $(COSMOO) $(FOURIERO) $(DENSO) $(BEAMO) $(IOO) $(HPIXO) $(SRCSO) $(IMAPO) $(KAPPAO) $(ISWO) $(FFTLOGO) $(PREDICTO)
+#OFILES = $(COMMONO) $(COSMOMADO) $(COSMOO) $(FOURIERO) $(DENSO) $(LCO) $(IOO) $(HPIXO) $(PIXO) $(PREDICTO) $(FFTLOGO)
 
 EXEC = CoLoRe
 
