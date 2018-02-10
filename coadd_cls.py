@@ -4,11 +4,12 @@ from astropy.table import Table
 import argparse
 
 parser = argparse.ArgumentParser(description='coadd the cls from a directory')
-parser.add_argument('clpattern', help='dir/cls*.fits like pattern')
+parser.add_argument('clpattern', help='dir/cls_ like pattern - *.fits is appended')
 
 args= parser.parse_args()
 
-files=glob.glob(args.clpattern)
+pattern=args.clpattern+"*.fits"
+files=glob.glob(args.pattern)
 Ntot=len(files)
 print(Ntot,files)
 hdulist = fits.open(files[0])
