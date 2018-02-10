@@ -9,7 +9,7 @@ parser.add_argument('clpattern', help='dir/cls_ like pattern - *.fits is appende
 args= parser.parse_args()
 
 pattern=args.clpattern+"*.fits"
-files=glob.glob(args.pattern)
+files=glob.glob(pattern)
 Ntot=len(files)
 print(Ntot,files)
 hdulist = fits.open(files[0])
