@@ -3,12 +3,12 @@ from scipy.signal import savgol_filter
 from tools import *
 import batch as b
 
-dens=0
-rsd=True
-shell=(2,3,4,5)
-#ngrid=256
-ngrid=512
-ngrid=1024
+
+truth=mrdfits("model/tophat_dens0_ngrid1024.fits",1)
+t=mrdfits("outputs/bench0/clmean.fits",1)
+cols=t.dtype.names[1:]
+l=t.ell
+
 newfig=True
 
 
@@ -21,19 +21,18 @@ zval=(0,0.1,0.2,0.3,0.4,0.5)
 
 if newfig:
     fig=figure()
-    fig.suptitle("Ngrid={}".format(ngrid), fontsize=14)
 for i in range(1,5):
     if i==1 :
         ax=subplot(2,2,i)
     else:
         subplot(2,2,i,sharex=ax,sharey=ax)
     ishell=i+1
-    l,clt=b.model(dens_type=dens,ngrid=ngrid,rsd=rsd,ishell=ishell)
-    cl=b.get(dens_type=dens,ngrid=ngrid,rsd=rsd,ishell=ishell)
+    clt=truth[cols[i-1]]
+    clt[0]=0
+    cl=t[cols[i-1]]
     res=cl-clt
     var=2*(clt+1/nbar)**2/(2*l+1)
-    plot(l,clt/max(clt),'k')
-    fill(l,clt/max(clt),'r')
+    plot(l,clt/max(clt),'k--')
     plot(res/sqrt(var),'k')
     xlim(1,200)
     ylim(-1,1)
@@ -42,6 +41,6 @@ for i in range(1,5):
     title(r"$z\in [{},{}]$".format(zmin,zmax),fontsize=9)
     ax0()
     xlabel(r"$\ell$",fontsize=12)
-    ylabel(r"$\Delta C_\ell/\sigma_{CV}$",fontsize=12)
+    ylabel(r"$\frac{\Delta C_\ell}{\sigma_{CV}}$",fontsize=12)
 tight_layout()
 print("ngrid={}".format(ngrid))

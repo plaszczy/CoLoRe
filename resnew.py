@@ -28,6 +28,7 @@ for i in range(1,5):
         subplot(2,2,i,sharex=ax,sharey=ax)
     ishell=i+1
     clt=truth[cols[i-1]]
+    clt[0]=0
     clrec=t[cols[i-1]]
     cvar=2*(clt+1/nbar)**2/(2*l+1)
     plot(clrec,'k',label=r"$<C_\ell^i>-SN$",lw=3)
