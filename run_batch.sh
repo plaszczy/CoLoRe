@@ -98,7 +98,7 @@ awk -v seed=\$RANDOM  '{if (/_SEED_/) {print "seed = "seed}  else {print}}' $COL
 
 #copy& clean
 cp cls.fits $OUTDIR/cls_\$seed.fits
-cp tt.cfg $OUTDIR/colore\$seed.cfg
+#cp tt.cfg $OUTDIR/colore\$seed.cfg
 
 rm -f *.fits
 done
