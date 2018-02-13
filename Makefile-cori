@@ -3,7 +3,7 @@
 ###Compiler and compilation options
 COMP_SER = cc
 COMP_MPI = cc
-OPTIONS = 
+OPTIONS = -dynamic -Wall -O3 -std=c99
 #
 ### Behavioural flags
 #Use double precision integer (enable in general)
@@ -31,15 +31,15 @@ USE_MPI = yes
 
 #GSL
 GSL_INC = -I${GSL_DIR}/include
-#GSL_LIB = -L${GSL_DIR}/lib 
+GSL_LIB = -L${GSL_DIR}/lib 
 
 #FFTW
-FFTW_INC = -I${FFTW_DIR}/../include
-FFTW_LIB = -L${FFTW_DIR}
+FFTW_INC = -I/opt/cray/pe/fftw/3.3.6.2/haswell/include
+FFTW_LIB = -L/opt/cray/pe/fftw/3.3.6.2/haswell/lib
 
 #cfitsio
-FITS_INC = -I/usr/common/software/cfitsio/3.370-reentrant/hsw/gnu/include
-FITS_LIB = -L/usr/common/software/cfitsio/3.370-reentrant/hsw/gnu/lib -lcfitsio
+FITS_INC = -I${CFITSIO_DIR}/include
+FITS_LIB = -L${CFITSIO_DIR}/lib
 
 #HDF5
 HDF5_INC = -I${HDF5_DIR}/include
