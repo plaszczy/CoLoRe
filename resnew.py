@@ -2,8 +2,17 @@ import batch as b
 from pylab import *
 from tools import *
 
-truth=mrdfits("model/tophat_dens0_ngrid1024.fits",1)
-t=mrdfits("outputs/bench0/clmean.fits",1)
+#clip
+#model="tophat_clip3_ngrid1024.fits"
+#data="outputs/bench3/clmean.fits"
+
+#lognormal
+model="tophat_dens0_ngrid1024.fits"
+data="outputs/bench0/clmean.fits"
+
+truth=mrdfits("model/"+model,1)
+t=mrdfits(data,1)
+
 cols=t.dtype.names[1:]
 l=t.ell
 
@@ -20,7 +29,7 @@ nbar=Nsamp/(4*np.pi)
 
 if newfig:
     fig=figure(figsize=(12,10))
-    #fig.suptitle("Ngrid={}".format(ngrid), fontsize=14)
+    fig.suptitle(model)
 for i in range(1,5):
     if i==1 :
         ax=subplot(2,2,i)
@@ -46,5 +55,5 @@ for i in range(1,5):
     xlabel(r"$\ell$")
     xlim(0,250)
     ylabel(r"$C_\ell$")
-ylim(-5e-5,2e-4)
+ylim(-2e-5,2e-5)
 tight_layout()

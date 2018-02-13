@@ -6,6 +6,10 @@ import batch as b
 
 truth=mrdfits("model/tophat_dens0_ngrid1024.fits",1)
 t=mrdfits("outputs/bench0/clmean.fits",1)
+
+#truth=mrdfits("model/tophat_clip_ngrid1024.fits",1)
+#t=mrdfits("outputs/bench3/clmean.fits",1)
+
 cols=t.dtype.names[1:]
 l=t.ell
 
@@ -43,4 +47,3 @@ for i in range(1,5):
     xlabel(r"$\ell$",fontsize=12)
     ylabel(r"$\frac{\Delta C_\ell}{\sigma_{CV}}$",fontsize=12)
 tight_layout()
-print("ngrid={}".format(ngrid))
