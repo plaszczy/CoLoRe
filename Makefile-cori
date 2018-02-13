@@ -46,8 +46,8 @@ HDF5_INC = -I${HDF5_DIR}/include
 HDF5_LIB = -L${HDF5_DIR}/lib
 
 #libconfig
-CONF_INC = -I$HOME/lib/cori/libconfig/include
-CONF_LIB = -L$HOME/lib/cori/libconfig/lib
+CONF_INC = -I/global/homes/p/plaszczy/lib/cori/libconfig/include
+CONF_LIB = -L/global/homes/p/plaszczy/lib/cori/libconfig/lib
 
 #healpix
 HPIX_INC = -I/global/common/cori/contrib/hpcosmo/hpcports_gnu-4.0/healpix-3.30.1_62c0405b-4.0/include
@@ -55,8 +55,8 @@ HPIX_LIB = -L//global/common/cori/contrib/hpcosmo/hpcports_gnu-4.0/healpix-3.30.
 
 
 #libsharp
-SHT_INC = -I$HOME/lib/cori/libsharp/auto/include
-SHT_LIB = -L$HOME/lib/cori/libsharp/auto/lib
+SHT_INC = -I/global/homes/p/plaszczy/lib/cori/libsharp/auto/include
+SHT_LIB = -L/global/homes/p/plaszczy/lib/cori/libsharp/auto/lib
 #
 
 
