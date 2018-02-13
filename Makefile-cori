@@ -30,7 +30,7 @@ USE_MPI = yes
 ###one instance is necessary.
 
 #GSL
-GSL_INC = -I${GSL_DIR}/include/gsl
+GSL_INC = -I${GSL_DIR}/include
 #GSL_LIB = -L${GSL_DIR}/lib 
 
 #FFTW
