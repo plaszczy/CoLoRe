@@ -38,8 +38,8 @@ FFTW_INC = -I/opt/cray/pe/fftw/3.3.6.2/haswell/include
 FFTW_LIB = -L/opt/cray/pe/fftw/3.3.6.2/haswell/lib
 
 #cfitsio
-FITS_INC = -I${CFITSIO_DIR}/include
-FITS_LIB = -L${CFITSIO_DIR}/lib
+FITS_INC = -I/usr/common/software/cfitsio/3.370-reentrant/hsw/intel/include
+FITS_LIB = -L/usr/common/software/cfitsio/3.370-reentrant/hsw/intel/lib
 
 #HDF5
 HDF5_INC = -I${HDF5_DIR}/include
