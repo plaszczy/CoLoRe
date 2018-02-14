@@ -39,7 +39,7 @@ class k_per_decade_for_bao 100
 
 
 #Pk smoothing (in Mpc)
-R_smooth=4
+R_smooth=5.9
 
 # if you wish to compute the spectrum after a logNormal transformation
 # (warning: some values may get <0)
