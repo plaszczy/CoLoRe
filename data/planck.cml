@@ -1,0 +1,60 @@
+#############################################################
+# 
+#   This is a standard CAMEL parameter file one may start with 
+#   (copy and play with it)
+#   Cosmological values taken from Couchot A&A, 597 (2017) A126  
+#   https://arxiv.org/abs/1510.07600
+#
+#			S. Plaszczynski 22/12/17
+#############################################################
+
+#COSMOLOGY:
+
+engine=class
+fix	H0		cosm	68
+fix	omega_b		cosm	0.022
+fix	omega_cdm	cosm	0.119
+fix	tau_reio	cosm	0.06
+fix	log(10^10A_s)	cosm	3.05
+fix	n_s		cosm	0.965
+
+
+# extra class	setup
+class	k_pivot	0.05
+class     N_ur		2.0328
+class     N_ncdm        1
+class     m_ncdm	0.06
+
+class	sBBN\	file	bbn/sBBN.dat
+
+precisionFile=class_pre/hpjul2.pre
+
+
+# P(k) SPECIFICATIONS:
+
+# increase CLASS number of internal k-nodes
+class k_scalar_k_per_decade_for_pk 100
+class k_per_decade_for_pk 100
+class k_per_decade_for_bao 100
+
+
+#Pk smoothing (in Mpc)
+R_smooth=4
+
+# if you wish to compute the spectrum after a logNormal transformation
+# (warning: some values may get <0)
+logNormalization=false
+
+# k-bounds
+#if not specified in a angpow ini file (otherwise overwritten by cl_kmax)
+kmax=10
+
+kmin=1e-3
+
+#number of ouput k values (log-spaced) per decade
+Nk_dec=100
+
+#specific transform
+2pt_transform=None
+#2pt_transform=LogNormal
+#2pt_transform=Clipped
