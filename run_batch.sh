@@ -19,7 +19,7 @@ echo "fileout=cls.fits" >> $OUTDIR/$SHELLSCONF
 
 
 range="1-10"
-NSIMS_PER_BATCH=10
+NSIMS_PER_BATCH=100
 
 #where teh commad was run
 HERE=$PWD
