@@ -2,14 +2,15 @@
 
 #arguments
 nargs=$#
-if ! [ $nargs -eq 3 ]; then
-echo "usage: run_batch colore.cfg proj.cfg dirout/ "
+if ! [ $nargs -eq 4 ]; then
+echo "usage: run_batch colore.cfg proj.cfg nsims dirout/ "
 exit
 fi
 
 COLORECONF=$1
 SHELLSCONF=$2
-OUTDIR=$(readlink -e $3)
+NSIMS=$3
+OUTDIR=$(readlink -e $4)
 
 #
 cp -f $COLORECONF $OUTDIR/$COLORECONF
@@ -19,7 +20,7 @@ echo "fileout=cls.fits" >> $OUTDIR/$SHELLSCONF
 
 
 range="1-10"
-NSIMS_PER_BATCH=100
+NSIMS_PER_BATCH=$(($NSIMS/10))
 
 #where teh commad was run
 HERE=$PWD

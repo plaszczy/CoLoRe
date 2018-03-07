@@ -74,7 +74,7 @@ template<typename T> class Shell
 public:
 
   //constructors
-  Shell(const Catalog<T>& c,const Window* w):cat(c),win(w){};
+  Shell(const Catalog<T>& c,const Window* w):cat(c),win(w),Nw(0){};
 
   inline void fillIndex(const uint64& i) {index.push_back(i);}
 
