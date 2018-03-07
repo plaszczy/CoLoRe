@@ -91,7 +91,9 @@ public:
       pointing p(theta,phi);
       p.normalize();
       uint32 ipix=map.ang2pix(p);
-      map[ipix]+=win->weight(cat.gal.z[igal]);
+      double w=win->weight(cat.gal.z[igal]);
+      map[ipix]+=w;
+      Nw+=w;
     }
   }
   void writeMap(){
@@ -129,7 +131,7 @@ public:
   Healpix_Map<double> map;
   double avg;
   Alm<xcomplex<double> > alm;
-
+  double Nw; //weighted # of gals
 };
 
 
@@ -255,7 +257,7 @@ PLANCK_DIAGNOSIS_BEGIN
 
      //shot noise for auto-spectrea
      if (iMS==jMS && remove_SN)
-       for (auto &val:cl) val-=(4*M_PI)/shells[iMS].index.size();
+       for (auto &cell:cl) cell-=(4*M_PI)/shells[iMS].Nw;
 
      fout.write_column(icol++,cl);
      
@@ -273,7 +275,7 @@ PLANCK_DIAGNOSIS_BEGIN
    double Ntot=shells[i].index.size();
    fout.add_comment("NEW SHELL********************************************* ");
    fout.set_key("Ngal"+dataToString(i),Ntot,"number of galaxies in shell");
-   fout.set_key("Nbar"+dataToString(i),Ntot/(4*M_PI),"mean number per steradian");
+   fout.set_key("Nw"+dataToString(i),shells[i].Nw,"weighted number of galaxies in shell");
    const Window* win=shells[i].win;
    fout.set_key("wintype"+dataToString(i),win->type(),"window type");
    double z1=(win->zmin()+win->zmax())/2;
