@@ -7,27 +7,17 @@ def ratio(t,truth,lmax=200):
     xlabel(r"$\ell$")
     ylabel(r"$C_\ell(rec)/C_\ell(true)$")
     legend()
+    ylim(0,3)
     ax1()
 
-#clip
+#
 #data="outputs/bench3/clmean.fits"
 #model="model/tophat_clip120.fits"
-#logn
-data="batch/gauss_bench0/clmean.fits"
-model="model/clgauss_logn.fits"
+#gauss
+#data="outputs/gauss4/clmean.fits"
+#model="model/clgauss_logn.fits"
 
-
-truth=mrdfits(model,1)
-t=mrdfits(data,1)
-
-figure()
-ratio(t,truth)
-title(model)
-ylim(0.85,1.15)
-tight_layout()
-
-#lognormal
-data="batch/bench0/clmean.fits"
+data="outputs/tophat4/clmean.fits"
 model="model/tophat_logn120.fits"
 
 truth=mrdfits(model,1)
@@ -36,7 +26,18 @@ t=mrdfits(data,1)
 figure()
 ratio(t,truth)
 title(model)
-ylim(0.85,1.15)
+tight_layout()
+
+#lognormal
+data="outputs/bench0/clmean.fits"
+model="model/tophat_logn120.fits"
+
+truth=mrdfits(model,1)
+t=mrdfits(data,1)
+
+figure()
+ratio(t,truth)
+title(model)
 tight_layout()
 
 
