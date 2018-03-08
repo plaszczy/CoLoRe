@@ -74,7 +74,7 @@ template<typename T> class Shell
 public:
 
   //constructors
-  Shell(const Catalog<T>& c,const Window* w):cat(c),win(w),Nw(0){};
+  Shell(const Catalog<T>& c,const Window* w):cat(c),win(w),Nw(0.){};
 
   inline void fillIndex(const uint64& i) {index.push_back(i);}
 
@@ -82,7 +82,7 @@ public:
     map.SetNside(nside,RING); 
     map.fill(0.);
     //loop on gals
-#pragma omp parallel for schedule(dynamic,5000)
+    //#pragma omp parallel for schedule(dynamic,5000) shared(cat)
     //for (auto igal : index) {
     for (size_t i=0;i<index.size();i++) {
       uint32 igal=index[i];
@@ -115,6 +115,7 @@ public:
     /*
     arr<double> weight;
     read_weight_ring(string(HEALPIXDATA),map.Nside(),weight);
+    for (auto &w: weight) w+=1;
     for (tsize m=0; m<weight.size(); ++m) weight[m]+=1;
     */
 
@@ -201,8 +202,8 @@ PLANCK_DIAGNOSIS_BEGIN
     
  //shells loop
  for (auto& shell : shells){
-   cout <<" -shell [" << shell.win->zmin() <<"," <<  shell.win->zmax() << "]: " << shell.index.size()/1e6 << " M galaxies " ;
    shell.projectMap(nside);
+   cout <<" -shell [" << shell.win->zmin() <<"," <<  shell.win->zmax() << "]: " << shell.index.size()/1e6 << " M galaxies " << " weighted=" << shell.Nw <<endl;;
    //shell.writeMap();
    double zemin,zemax;
    shell.map.minmax(zemin,zemax);

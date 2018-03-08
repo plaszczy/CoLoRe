@@ -1,4 +1,5 @@
-filein=cat2149.fits
+filein=batch/ngrid1024/dens_type0/cat2149.fits
+
 fileout=!cls.fits
 
 remove_shotnoise=true

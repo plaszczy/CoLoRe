@@ -43,7 +43,7 @@ class UniformWindow : public Window
 {
 public:
   UniformWindow(double zmin,double zmax):Window(zmin,zmax){}
-  inline double weight(const double& z) const {return 1;}  
+  inline double weight(const double& z) const {return 1.;}  
   std::string type() const {return "TopHat";}
 
 };
