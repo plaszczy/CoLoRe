@@ -52,7 +52,7 @@ class GaussWindow : public Window
 {
 public:
   GaussWindow(double mean,double sigma,double nsigcut=3):Window(mean-nsigcut*sigma,mean+nsigcut*sigma),_zmean(mean),_sigma(sigma){}
-  inline double weight(const double& z) const {return std::exp(std::pow((z-_zmean)/_sigma,2)/2);}
+  inline double weight(const double& z) const {return std::exp(-std::pow((z-_zmean)/_sigma,2)/2);}
   std::string type() const {return "Gauss";}
 
 private:

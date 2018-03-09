@@ -171,7 +171,7 @@ PLANCK_DIAGNOSIS_BEGIN
    else if (window_type=="Gauss")
      windows.push_back(new GaussWindow(zmean[i],width,nsigcut));
    else
-     throw string("unknown window="+window_type);
+     throw PlanckError("unknown window="+window_type);
  }
 
  const int nside=params.find<int>("nside",512); 
@@ -203,7 +203,7 @@ PLANCK_DIAGNOSIS_BEGIN
  //shells loop
  for (auto& shell : shells){
    shell.projectMap(nside);
-   cout <<" -shell [" << shell.win->zmin() <<"," <<  shell.win->zmax() << "]: " << shell.index.size()/1e6 << " M galaxies " << " weighted=" << shell.Nw <<endl;;
+   cout <<" -shell [" << shell.win->zmin() <<"," <<  shell.win->zmax() << "]: " << shell.index.size()/1e6 << " M galaxies " << " weighted=" << shell.Nw/1e6 <<endl;;
    //shell.writeMap();
    double zemin,zemax;
    shell.map.minmax(zemin,zemax);
