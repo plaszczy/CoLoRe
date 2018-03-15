@@ -12,6 +12,7 @@
 #include "healpix_data_io.h"
 
 #include "powspec_fitsio.h"
+#include "planck_rng.h"
 
 #include"string_utils.h"
 #include "fitshandle.h"
@@ -36,6 +37,17 @@ using GALTYPE = float32;
 Timer* timer=nullptr;
 
 
+class Gaussian_smear {
+public:
+  Gaussian_smear(planck_rng* rng,double sigma):_rng(rng),_s(sigma){}
+
+  template <typename T> void smear(T& z) { z+= _rng->rand_gauss()*_s;}
+
+  planck_rng* _rng;
+  double _s;
+};
+
+
 template<typename T> struct galaxies{
   arr<T> ra;
   arr<T> dec;
@@ -46,7 +58,7 @@ template<typename T> class Catalog
 {
   
 public:
-  Catalog(string fn,bool rsd=true){
+  Catalog(string fn,Gaussian_smear* g,bool rsd=true){
     fh.open(fn);
     fh.goto_hdu(2);
     //read data arrays
@@ -57,6 +69,9 @@ public:
       arr<T> dz;
       fh.read_entire_column(5,dz);
       for (size_t i=0;i<dz.size();i++) gal.z[i]+=dz[i];
+    }
+    if (g!=nullptr) {
+      for (size_t i=0;i<gal.z.size();i++) g->smear(gal.z[i]);
     }
     fh.close();
   }
@@ -135,7 +150,6 @@ public:
   double Nw; //weighted # of gals
 };
 
-
 auto main(int argc,char** argv)-> int {
 
 PLANCK_DIAGNOSIS_BEGIN
@@ -179,9 +193,21 @@ PLANCK_DIAGNOSIS_BEGIN
  const bool rsd=params.find<int>("include_rsd",1)==1;
  const bool remove_SN=params.find<bool>("remove_shotnoise",true);
 
+
+ //rng
+ Gaussian_smear* smear=nullptr;
+ const auto randomize=params.find<bool>("randomize",false);
+ const auto seed=params.find<uint32>("seed",1234567);
+ const auto sigma=params.find<double>("sigma",0.05);
+ if (randomize) {
+   planck_rng* rnd=new planck_rng(seed);
+   smear=new Gaussian_smear(rnd,sigma);
+ }
+ 
+
  timer=new Timer();
  //read catalog
- Catalog<GALTYPE> cat(filein,rsd);
+ Catalog<GALTYPE> cat(filein,smear,rsd);
  cout << "Read catalog= " << argv[1] << " with " << cat.gal.z.size()/1e6 << " M entries " << *timer <<endl; 
     
  //create shellss
