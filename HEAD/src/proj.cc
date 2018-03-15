@@ -66,11 +66,13 @@ public:
     fh.read_entire_column(3,gal.dec);
     fh.read_entire_column(4,gal.z);
     if (rsd) {
+      cout << "using RSD" <<endl;
       arr<T> dz;
       fh.read_entire_column(5,dz);
       for (size_t i=0;i<dz.size();i++) gal.z[i]+=dz[i];
     }
     if (g!=nullptr) {
+      cout << "smearing z with sigma=" << g->_s << endl;
       for (size_t i=0;i<gal.z.size();i++) g->smear(gal.z[i]);
     }
     fh.close();
@@ -150,9 +152,11 @@ public:
   double Nw; //weighted # of gals
 };
 
-auto main(int argc,char** argv)-> int {
 
-PLANCK_DIAGNOSIS_BEGIN
+///////////////////////////////////////////////////////////
+auto main(int argc,char** argv)-> int { //C++11
+
+  PLANCK_DIAGNOSIS_BEGIN
 
   announce(argv[0]);
 
@@ -314,5 +318,5 @@ PLANCK_DIAGNOSIS_BEGIN
  cout << "partial time=" << timer->partial() << " Total=" << timer->total() << endl;
  delete timer;
 
-PLANCK_DIAGNOSIS_END
+ PLANCK_DIAGNOSIS_END
 }
