@@ -95,7 +95,11 @@ awk -v seed=\$RANDOM  '{if (/_SEED_/) {print "seed = "seed}  else {print}}' $COL
 ./CoLoRe tt.cfg
 
 #then projetc it into shells
-./proj $SHELLSCONF
+#change seed 
+grep -v $SHELLSCONF > proj.par
+echo "seed=\$seed" >> proj.par
+
+./proj proj.par
 
 #copy& clean
 cp cls.fits $OUTDIR/cls_\$seed.fits
