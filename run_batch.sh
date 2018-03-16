@@ -96,7 +96,7 @@ awk -v seed=\$RANDOM  '{if (/_SEED_/) {print "seed = "seed}  else {print}}' $COL
 
 #then projetc it into shells
 #change seed 
-grep -v $SHELLSCONF > proj.par
+grep -v "seed" $SHELLSCONF > proj.par
 echo "seed=\$seed" >> proj.par
 
 ./proj proj.par
