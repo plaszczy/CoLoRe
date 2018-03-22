@@ -1,7 +1,7 @@
 filein=cat2149.fits
 fileout=!cls.fits
 
-remove_shotnoise=true
+remove_shotnoise=false
 
 nside=512
 Lmax = 751
