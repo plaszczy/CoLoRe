@@ -45,7 +45,7 @@ echo "miss proj in $HERE/$HEAD/amd64_sl6"
 exit
 fi
 if ! [ -f $HERE/HEAD/amd64_sl7/proj ] ; then
-echo "miss proj in $HERE/$HEAD/amd64_sl6"
+echo "miss proj in $HERE/$HEAD/amd64_sl7"
 exit
 fi
 
@@ -69,9 +69,9 @@ source /usr/local/intel/icc/bin/iccvars.sh
 #needs cmt for CMTCONFIG
 source $LSSTLIB/CMT/v1r26/mgr/setup.sh
 
-# copies locale execs
-cp $HERE/HEAD/$CMTCONFIG/CoLoRe .
-cp $HERE/HEAD/$CMTCONFIG/proj .
+# copies localeexecs
+cp $HERE/HEAD/\$CMTCONFIG/CoLoRe .
+cp $HERE/HEAD/\$CMTCONFIG/proj .
 
 cp $OUTDIR/$COLORECONF .
 cp $OUTDIR/$SHELLSCONF .
