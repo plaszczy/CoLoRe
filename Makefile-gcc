@@ -19,7 +19,7 @@ USE_SINGLE_PRECISION = yes
 #Add random perturbations to kappa from redshifts outside the box
 ADD_EXTRA_KAPPA = yes
 #Compile with HDF5 capability? Set to "yes" or "no"
-USE_HDF5 = no
+USE_HDF5 = yes
 #Use OMP parallelization? Set to "yes" or "no"
 USE_OMP = yes
 #Use MPI parallelization? Set to "yes" or "no"
@@ -38,8 +38,8 @@ FFTW_LIB =
 FITS_INC =
 FITS_LIB =
 #cfitsio
-HDF5_INC =
-HDF5_LIB =
+HDF5_INC =-I/usr/include/hdf5/serial
+HDF5_LIB =-L/usr/lib/x86_64-linux-gnu/hdf5/serial/
 #libconfig
 CONF_INC = 
 CONF_LIB =
