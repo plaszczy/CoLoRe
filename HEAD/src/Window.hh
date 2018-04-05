@@ -56,6 +56,8 @@ public:
   {
     double w2=sqrt(M_PI)/2*_sigma*(std::erf((_zmax-mean)/_sigma)+std::erf((mean-_zmin)/_sigma));
     _autonorm=sqrt(w2)/(_zmax-_zmin);
+    //_autonorm=sqrt(M_PI/2)*_sigma*(std::erf((_zmax-mean)/(sqrt(2.)*_sigma))
+//		                  +std::erf((mean-_zmin)/(sqrt(2)*_sigma)));
     std::cout << "gaussian norm=" << _autonorm << std::endl;
   }
   inline double weight(const double& z) const 
