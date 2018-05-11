@@ -77,6 +77,7 @@ cp $OUTDIR/$COLORECONF .
 cp $OUTDIR/$SHELLSCONF .
 
 cp -r $HERE/data .
+cp -r $HERE/sample_LSST .
 
 ls
 #
