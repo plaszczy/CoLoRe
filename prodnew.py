@@ -19,7 +19,6 @@ def ratio(t,truth,h,lmax=200):
         ax0()
 
 #LOGN
-
 #tophat
 #data="outputs/bench0/clmean.fits"
 #model="model/cltophat_logn.fits"
@@ -44,7 +43,6 @@ model="model/clgauss_logn.fits"
 
 tmod=mrdfits(model,1)
 (t,h)=mrdfits(data,1,header=True)
-
 
 figure()
 ratio(t,tmod,h,700)
