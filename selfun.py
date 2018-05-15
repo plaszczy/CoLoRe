@@ -2,7 +2,7 @@
 from tools import *
 
 
-i=3
+i=1
 
 #dndz=5000
 t=mrdfits("outputs/bench0/clmean.fits",1)
@@ -17,7 +17,7 @@ cl1=t[n]
 
 cl2=tr[n]
 #remove SN
-S2=mean(cl2[500:])
+S2=mean(cl2[600:])
 cl2-=S2
 
 figure()
