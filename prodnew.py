@@ -26,13 +26,13 @@ def ratio(t,truth,h,lmax=200):
 #data="outputs/bench0/clmean_norsd.fits"
 #model="model/cltophat_logn_norsd.fits"
 #gauss
-#data="outputs/gauss4_dens0/clmean.fits"
-#model="model/clgauss_logn.fits"
+data="outputs/gauss_logn_1/clmean.fits"
+model="model/clgauss_logn.fits"
 
 ###CLIP
 ###tophat
-data="outputs/bench3/clmean.fits"
-model="model/cltophat_clip.fits"
+#data="outputs/bench3/clmean.fits"
+#model="model/cltophat_clip.fits"
 #gauss
 #data="outputs/gauss4_dens3/clmean.fits"
 #model="model/clgauss_clip.fits"
