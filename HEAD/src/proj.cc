@@ -290,9 +290,9 @@ auto main(int argc,char** argv)-> int { //C++11
      //shot noise for auto-spectrea
      if (iMS==jMS && remove_SN)
        for (auto &cell:cl) { 
-	 double Ntot=shells[iMS].index.size();
+	 double Nw=shells[iMS].Nw;
 	 double Nw2=shells[iMS].Nw2;
-	 cell-=(4*M_PI*Nw2/(Ntot*Ntot));
+	 cell-=(4*M_PI*Nw2/(Nw*Nw));
        }
      fout.write_column(icol++,cl);
 
