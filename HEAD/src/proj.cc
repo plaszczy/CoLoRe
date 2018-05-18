@@ -91,7 +91,7 @@ template<typename T> class Shell
 public:
 
   //constructors
-  Shell(const Catalog<T>& c,const Window* w):cat(c),win(w),Nw2(0.){};
+  Shell(const Catalog<T>& c,const Window* w):cat(c),win(w),Nw(0.),Nw2(0.){};
 
   inline void fillIndex(const uint64& i) {index.push_back(i);}
 
@@ -110,6 +110,7 @@ public:
       uint32 ipix=map.ang2pix(p);
       double w=win->weight(cat.gal.z[igal]);
       map[ipix]+=w;
+      Nw+=w;
       Nw2+=(w*w);
     }
   }
@@ -149,7 +150,7 @@ public:
   Healpix_Map<double> map;
   double avg;
   Alm<xcomplex<double> > alm;
-  double Nw2; //weighted # of gals
+  double Nw,Nw2; //weighted # of gals
 };
 
 
@@ -292,12 +293,8 @@ auto main(int argc,char** argv)-> int { //C++11
 	 double Ntot=shells[iMS].index.size();
 	 double Nw2=shells[iMS].Nw2;
 	 cell-=(4*M_PI*Nw2/(Ntot*Ntot));
-	 
        }
-
      fout.write_column(icol++,cl);
-     
-
 
    }
  }
@@ -311,7 +308,8 @@ auto main(int argc,char** argv)-> int { //C++11
    double Ntot=shells[i].index.size();
    fout.add_comment("NEW SHELL********************************************* ");
    fout.set_key("Ngal"+dataToString(i),Ntot,"number of galaxies in shell");
-   fout.set_key("Nw2"+dataToString(i),shells[i].Nw2,"weighted number of galaxies in shell");
+   fout.set_key("Nw"+dataToString(i),shells[i].Nw,"weighted number of galaxies in shell");
+   fout.set_key("Nw2"+dataToString(i),shells[i].Nw2,"squared weighted number of galaxies in shell");
    const Window* win=shells[i].win;
    fout.set_key("wintype"+dataToString(i),win->type(),"window type");
    double z1=(win->zmin()+win->zmax())/2;
