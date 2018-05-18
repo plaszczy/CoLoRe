@@ -54,10 +54,9 @@ class GaussWindow : public Window
 public:
   GaussWindow(double mean,double sigma,double nsigcut=3):Window(mean-nsigcut*sigma,mean+nsigcut*sigma),_zmean(mean),_sigma(sigma)
   {
-    double w2=sqrt(M_PI)/2*_sigma*(std::erf((_zmax-mean)/_sigma)+std::erf((mean-_zmin)/_sigma));
-    _autonorm=sqrt(w2)/(_zmax-_zmin);
-    //_autonorm=sqrt(M_PI/2)*_sigma*(std::erf((_zmax-mean)/(sqrt(2.)*_sigma))
-//		                  +std::erf((mean-_zmin)/(sqrt(2)*_sigma)));
+    //double w2=sqrt(M_PI)/2*_sigma*(std::erf((_zmax-mean)/_sigma)+std::erf((mean-_zmin)/_sigma));
+    //_autonorm=sqrt(w2)/(_zmax-_zmin);
+    _autonorm=1.;
     std::cout << "gaussian norm=" << _autonorm << std::endl;
   }
   inline double weight(const double& z) const 
