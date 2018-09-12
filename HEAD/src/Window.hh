@@ -18,6 +18,7 @@
 
 #include<cmath>
 #include<string>
+#include<iostream>
 
 class Window
 {
@@ -34,7 +35,7 @@ public:
   virtual double weight(const double& z) const =0;
   virtual std::string type() const=0;
 
-private:
+protected:
   double _zmin,_zmax;
   
 };
@@ -43,7 +44,7 @@ class UniformWindow : public Window
 {
 public:
   UniformWindow(double zmin,double zmax):Window(zmin,zmax){}
-  inline double weight(const double& z) const {return 1;}  
+  inline double weight(const double& z) const {return 1.;}  
   std::string type() const {return "TopHat";}
 
 };
@@ -51,18 +52,19 @@ public:
 class GaussWindow : public Window 
 {
 public:
-  GaussWindow(double mean,double sigma,double nsigcut=3):Window(mean-nsigcut*sigma,mean+nsigcut*sigma),_zmean(mean),_sigma(sigma){}
-  inline double weight(const double& z) const {return std::exp(std::pow((z-_zmean)/_sigma,2)/2);}
-  std::string type() const {return "Gauss";}
+  GaussWindow(double mean,double sigma,double nsigcut=3):Window(mean-nsigcut*sigma,mean+nsigcut*sigma),_zmean(mean),_sigma(sigma)
+  {
+  }
+  inline double weight(const double& z) const 
+  {
+    return std::exp(-std::pow((z-_zmean)/_sigma,2)/2);
+  }
+  
+std::string type() const {return "Gauss";}
 
 private:
   double _zmean,_sigma;
 };
-
-
-
-
-
 
 
 #endif

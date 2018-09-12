@@ -2,14 +2,15 @@
 
 #arguments
 nargs=$#
-if ! [ $nargs -eq 3 ]; then
-echo "usage: run_batch colore.cfg proj.cfg dirout/ "
+if ! [ $nargs -eq 4 ]; then
+echo "usage: run_batch colore.cfg proj.cfg nsims dirout/ "
 exit
 fi
 
 COLORECONF=$1
 SHELLSCONF=$2
-OUTDIR=$(readlink -e $3)
+NSIMS=$3
+OUTDIR=$(readlink -e $4)
 
 #
 cp -f $COLORECONF $OUTDIR/$COLORECONF
@@ -19,7 +20,7 @@ echo "fileout=cls.fits" >> $OUTDIR/$SHELLSCONF
 
 
 range="1-10"
-NSIMS_PER_BATCH=100
+NSIMS_PER_BATCH=$(($NSIMS/10))
 
 #where teh commad was run
 HERE=$PWD
@@ -44,7 +45,7 @@ echo "miss proj in $HERE/$HEAD/amd64_sl6"
 exit
 fi
 if ! [ -f $HERE/HEAD/amd64_sl7/proj ] ; then
-echo "miss proj in $HERE/$HEAD/amd64_sl6"
+echo "miss proj in $HERE/$HEAD/amd64_sl7"
 exit
 fi
 
@@ -68,14 +69,15 @@ source /usr/local/intel/icc/bin/iccvars.sh
 #needs cmt for CMTCONFIG
 source $LSSTLIB/CMT/v1r26/mgr/setup.sh
 
-# copies locale execs
-cp $HERE/HEAD/$CMTCONFIG/CoLoRe .
-cp $HERE/HEAD/$CMTCONFIG/proj .
+# copies localeexecs
+cp $HERE/HEAD/\$CMTCONFIG/CoLoRe .
+cp $HERE/HEAD/\$CMTCONFIG/proj .
 
 cp $OUTDIR/$COLORECONF .
 cp $OUTDIR/$SHELLSCONF .
 
 cp -r $HERE/data .
+cp -r $HERE/sample_LSST .
 
 ls
 #
@@ -94,7 +96,11 @@ awk -v seed=\$RANDOM  '{if (/_SEED_/) {print "seed = "seed}  else {print}}' $COL
 ./CoLoRe tt.cfg
 
 #then projetc it into shells
-./proj $SHELLSCONF
+#change seed 
+grep -v "seed" $SHELLSCONF > proj.par
+echo "seed=\$seed" >> proj.par
+
+./proj proj.par
 
 #copy& clean
 cp cls.fits $OUTDIR/cls_\$seed.fits

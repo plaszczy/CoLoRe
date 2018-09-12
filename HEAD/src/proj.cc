@@ -12,6 +12,7 @@
 #include "healpix_data_io.h"
 
 #include "powspec_fitsio.h"
+#include "planck_rng.h"
 
 #include"string_utils.h"
 #include "fitshandle.h"
@@ -36,6 +37,17 @@ using GALTYPE = float32;
 Timer* timer=nullptr;
 
 
+class Gaussian_smear {
+public:
+  Gaussian_smear(planck_rng* rng,double sigma):_rng(rng),_s(sigma){}
+
+  template <typename T> void smear(T& z) { z+= _rng->rand_gauss()*_s;}
+
+  planck_rng* _rng;
+  double _s;
+};
+
+
 template<typename T> struct galaxies{
   arr<T> ra;
   arr<T> dec;
@@ -46,7 +58,7 @@ template<typename T> class Catalog
 {
   
 public:
-  Catalog(string fn,bool rsd=true){
+  Catalog(string fn,Gaussian_smear* g,bool rsd=true){
     fh.open(fn);
     fh.goto_hdu(2);
     //read data arrays
@@ -54,9 +66,14 @@ public:
     fh.read_entire_column(3,gal.dec);
     fh.read_entire_column(4,gal.z);
     if (rsd) {
+      cout << "using RSD" <<endl;
       arr<T> dz;
       fh.read_entire_column(5,dz);
       for (size_t i=0;i<dz.size();i++) gal.z[i]+=dz[i];
+    }
+    if (g!=nullptr) {
+      cout << "smearing z with sigma=" << g->_s << endl;
+      for (size_t i=0;i<gal.z.size();i++) g->smear(gal.z[i]);
     }
     fh.close();
   }
@@ -74,7 +91,7 @@ template<typename T> class Shell
 public:
 
   //constructors
-  Shell(const Catalog<T>& c,const Window* w):cat(c),win(w){};
+  Shell(const Catalog<T>& c,const Window* w):cat(c),win(w),Nw(0.),Nw2(0.){};
 
   inline void fillIndex(const uint64& i) {index.push_back(i);}
 
@@ -82,7 +99,7 @@ public:
     map.SetNside(nside,RING); 
     map.fill(0.);
     //loop on gals
-#pragma omp parallel for schedule(dynamic,5000)
+    //#pragma omp parallel for schedule(dynamic,5000) shared(cat)
     //for (auto igal : index) {
     for (size_t i=0;i<index.size();i++) {
       uint32 igal=index[i];
@@ -91,7 +108,10 @@ public:
       pointing p(theta,phi);
       p.normalize();
       uint32 ipix=map.ang2pix(p);
-      map[ipix]+=win->weight(cat.gal.z[igal]);
+      double w=win->weight(cat.gal.z[igal]);
+      map[ipix]+=w;
+      Nw+=w;
+      Nw2+=(w*w);
     }
   }
   void writeMap(){
@@ -113,6 +133,7 @@ public:
     /*
     arr<double> weight;
     read_weight_ring(string(HEALPIXDATA),map.Nside(),weight);
+    for (auto &w: weight) w+=1;
     for (tsize m=0; m<weight.size(); ++m) weight[m]+=1;
     */
 
@@ -129,13 +150,14 @@ public:
   Healpix_Map<double> map;
   double avg;
   Alm<xcomplex<double> > alm;
-
+  double Nw,Nw2; //weighted # of gals
 };
 
 
-auto main(int argc,char** argv)-> int {
+///////////////////////////////////////////////////////////
+auto main(int argc,char** argv)-> int { //C++11
 
-PLANCK_DIAGNOSIS_BEGIN
+  PLANCK_DIAGNOSIS_BEGIN
 
   announce(argv[0]);
 
@@ -168,7 +190,7 @@ PLANCK_DIAGNOSIS_BEGIN
    else if (window_type=="Gauss")
      windows.push_back(new GaussWindow(zmean[i],width,nsigcut));
    else
-     throw string("unknown window="+window_type);
+     throw PlanckError("unknown window="+window_type);
  }
 
  const int nside=params.find<int>("nside",512); 
@@ -176,9 +198,21 @@ PLANCK_DIAGNOSIS_BEGIN
  const bool rsd=params.find<int>("include_rsd",1)==1;
  const bool remove_SN=params.find<bool>("remove_shotnoise",true);
 
+
+ //rng
+ Gaussian_smear* smear=nullptr;
+ const auto randomize=params.find<bool>("randomize",false);
+ const auto seed=params.find<uint32>("seed",1234567);
+ const auto sigma=params.find<double>("sigma",0.05);
+ if (randomize) {
+   planck_rng* rnd=new planck_rng(seed);
+   smear=new Gaussian_smear(rnd,sigma);
+ }
+ 
+
  timer=new Timer();
  //read catalog
- Catalog<GALTYPE> cat(filein,rsd);
+ Catalog<GALTYPE> cat(filein,smear,rsd);
  cout << "Read catalog= " << argv[1] << " with " << cat.gal.z.size()/1e6 << " M entries " << *timer <<endl; 
     
  //create shellss
@@ -199,8 +233,8 @@ PLANCK_DIAGNOSIS_BEGIN
     
  //shells loop
  for (auto& shell : shells){
-   cout <<" -shell [" << shell.win->zmin() <<"," <<  shell.win->zmax() << "]: " << shell.index.size()/1e6 << " M galaxies " ;
    shell.projectMap(nside);
+   cout <<" -shell [" << shell.win->zmin() <<"," <<  shell.win->zmax() << "]: " << shell.index.size()/1e6 << " M galaxies " <<endl;;
    //shell.writeMap();
    double zemin,zemax;
    shell.map.minmax(zemin,zemax);
@@ -255,11 +289,12 @@ PLANCK_DIAGNOSIS_BEGIN
 
      //shot noise for auto-spectrea
      if (iMS==jMS && remove_SN)
-       for (auto &val:cl) val-=(4*M_PI)/shells[iMS].index.size();
-
+       for (auto &cell:cl) { 
+	 double Nw=shells[iMS].Nw;
+	 double Nw2=shells[iMS].Nw2;
+	 cell-=(4*M_PI*Nw2/(Nw*Nw));
+       }
      fout.write_column(icol++,cl);
-     
-
 
    }
  }
@@ -273,7 +308,8 @@ PLANCK_DIAGNOSIS_BEGIN
    double Ntot=shells[i].index.size();
    fout.add_comment("NEW SHELL********************************************* ");
    fout.set_key("Ngal"+dataToString(i),Ntot,"number of galaxies in shell");
-   fout.set_key("Nbar"+dataToString(i),Ntot/(4*M_PI),"mean number per steradian");
+   fout.set_key("Nw"+dataToString(i),shells[i].Nw,"weighted number of galaxies in shell");
+   fout.set_key("Nw2"+dataToString(i),shells[i].Nw2,"squared weighted number of galaxies in shell");
    const Window* win=shells[i].win;
    fout.set_key("wintype"+dataToString(i),win->type(),"window type");
    double z1=(win->zmin()+win->zmax())/2;
@@ -285,5 +321,5 @@ PLANCK_DIAGNOSIS_BEGIN
  cout << "partial time=" << timer->partial() << " Total=" << timer->total() << endl;
  delete timer;
 
-PLANCK_DIAGNOSIS_END
+ PLANCK_DIAGNOSIS_END
 }
