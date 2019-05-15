@@ -1,0 +1,8 @@
+
+#LSST10Y
+
+salloc -N 32 -t 10 -C haswell -q interactive
+
+export OMP_NUM_THREADS=64
+
+srun -n 32 -c 64 ./CoLoRe galLSST10Y_cori.cfg
